@@ -9,11 +9,17 @@ import { gql, useQuery } from "@apollo/client";
 import profile from "../images/profile.jpg";
 import def from "../images/def.jpg";
 import { initializeApollo } from "../lib/apollo";
+import HPosts from "../components/posts";
 
 const Get_FUser = gql`
   query getfposts {
     users {
       fname
+    }
+
+    allposts {
+      title
+      user_name
     }
   }
 `;
@@ -33,19 +39,57 @@ export default function Home() {
   if (data) {
     console.log(data);
   }
+  const login_user = "iamhasley";
+  //typeof window !== "undefined" ? localStorage.getItem("fantaUser") : "";
+  //
+  //{data.users.map((user, key) => {
+  //  return (
+  //    <div key={key} className="flex">
+  //      <Link href={`${user.fname}`}>
+  //        <a>{user.fname}</a>
+  //      </Link>
+  //    </div>
+  //  );
+  //})}
 
   return (
-    <div className="border bg-zinc-50">
+    <div className="w-full bg-zinc-50">
       <Header />
-      {data.users.map((user, key) => {
-        return (
-          <div key={key} className="flex">
-            <Link href={`${user.fname}`}>
-              <a>{user.fname}</a>
-            </Link>
+      <div className="flex mt-7 w-5/12 mx-auto ">
+        <div className="mr-10 w-7/12">
+          <div className="flex"></div>
+          <div>
+            {data.allposts.map((post, key) => {
+              return (
+                <div key={key}>
+                  <HPosts data={post} />
+                </div>
+              );
+            })}
           </div>
-        );
-      })}
+        </div>
+        <div className="w-5/12 h-screen">
+          <div className="flex items-center">
+            <Image
+              src={profile}
+              width="70"
+              height="70"
+              className="rounded-full"
+            />
+            <div className="grow mx-3">
+              <p className="text-sm">{login_user}</p>
+              <p>snowman</p>
+            </div>
+            <button className="text-lime-800">switch</button>
+          </div>
+          <div className="mt-2">
+            <div className="flex justify-between items-center">
+              <p className="text-gray-500">suggestions for you</p>
+              <p>see all</p>{" "}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

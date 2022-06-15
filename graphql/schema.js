@@ -12,11 +12,19 @@ const typeDefs = gql`
     puid: String!
     user_name: String!
   }
-
+  type Message {
+    muid: String!
+    content: String!
+    sender: String!
+    receiver: String!
+  }
   type Query {
     user(fname: String!): User!
     users: [User!]!
     posts(fname: String!): [Post!]!
+    allposts: [Post!]!
+    getFl: [String]!
+    getmessages: [Message]!
   }
   type Mutation {
     addfuser(fname: String!, confirmPassword: String!, password: String!): User!
@@ -25,6 +33,7 @@ const typeDefs = gql`
     updatefpost(title: String!, fuid: String!): Post!
     addfl(fname: String!): String
     remfl(fname: String!): String
+    sendmessage(receiver: String!, content: String!): Message!
   }
 `;
 

@@ -64,6 +64,7 @@ export default function account() {
   const [adfl, { data: md, loading: ml, error: me }] = useMutation(Add_Fl);
   const aaddfl = (e, user) => {
     e.preventDefault();
+
     adfl({
       variables: {
         fname: user,

@@ -4,7 +4,7 @@ import typeDefs from "../../graphql/schema";
 import Cors from "micro-cors";
 import jwt from "jsonwebtoken";
 import authg from "../../lib/auth";
-
+import Router from "next/router";
 const cors = Cors();
 
 const apolloServer = new ApolloServer({
@@ -32,7 +32,9 @@ const apolloServer = new ApolloServer({
             ? req.headers.authorization
             : req.cookies.token;
         console.log(token);
-
+        if (!token) {
+          Router.push("/signup");
+        }
         const u_id = authg(token);
         console.log("done token");
 

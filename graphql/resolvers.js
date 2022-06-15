@@ -23,12 +23,37 @@ const resolvers = {
 
       return data.rows[0];
     },
-    users: async () => {
+    users: async (_, args, ctx) => {
       console.log("inusers");
-
+      console.log(ctx.userId);
       const data = await pool.query("SELECT * FROM fanuser;");
       console.log(data.rows[0]);
 
+      return data.rows;
+    },
+    getFl: async (_, __, { userId }) => {
+      console.log("in getfl");
+      const data = await pool.query(
+        `SELECT following FROM fanuser WHERE fname='${userId}';`
+      );
+      console.log(data.rows[0].following);
+      return data.rows[0].following;
+    },
+    allposts: async () => {
+      console.log("inposts");
+
+      const data = await pool.query("SELECT * FROM fanpost;");
+      console.log(data.rows[0]);
+
+      return data.rows;
+    },
+    getmessages: async (_, args, { userId }) => {
+      console.log("in get message");
+      console.log(args);
+      const data = await pool.query(
+        `SELECT * FROM message WHERE sender = '${userId}' OR receiver = '${userId}';`
+      );
+      console.log(data.rows);
       return data.rows;
     },
     posts: async (_, args, context) => {
@@ -189,6 +214,16 @@ const resolvers = {
       console.log(post.rows[0]);
 
       return post.rows[0].adddffflll;
+    },
+    sendmessage: async (_, { receiver, content }, { userId }) => {
+      console.log("in sendmessage");
+
+      console.log(userId);
+      const data = await pool.query(
+        `INSERT INTO message(content,sender,receiver) VALUES ('${content}','${userId}','${receiver}') returning *;`
+      );
+      console.log(data.rows);
+      return data.rows[0];
     },
   },
 };
