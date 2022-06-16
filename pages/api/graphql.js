@@ -5,8 +5,10 @@ import Cors from "micro-cors";
 import jwt from "jsonwebtoken";
 import authg from "../../lib/auth";
 import Router from "next/router";
-const cors = Cors();
+import { PubSub } from "graphql-subscriptions";
 
+const cors = Cors();
+const pubbsubb = new PubSub();
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
@@ -37,13 +39,10 @@ const apolloServer = new ApolloServer({
         }
         const u_id = authg(token);
         console.log("done token");
-
         console.log(u_id);
         req.userId = u_id.name;
-        //console.log(req);
-        console.log(req.userId);
         console.log("done ctx");
-
+        req.pubsub = pubbsubb;
         return req;
       }
 

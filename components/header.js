@@ -14,7 +14,12 @@ const Header = () => {
   }, [isLogin]);
   return (
     <div className="flex justify-center gap-56 bg-white align-center items-center border shadow-xs ">
-      <Image src={instlogo} width="110" height="40" />
+      <Image
+        src={instlogo}
+        width="110"
+        height="40"
+        onClick={(e) => router.push("/")}
+      />
       <div className="flex border h-9 align-center items-center gap-2 p-3 my-3 rounded-lg bg-zinc-100">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -44,6 +49,7 @@ const Header = () => {
             className="h-7 w-7"
             viewBox="0 0 20 20"
             fill="currentColor"
+            onClick={(e) => router.push("/")}
           >
             <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
           </svg>

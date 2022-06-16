@@ -5,15 +5,11 @@ import { gql, useQuery } from "@apollo/client";
 import Image from "next/image";
 import profile from "../../images/profile.jpg";
 import { useMutation } from "@apollo/client";
+import Link from "next/link";
 
 const Get_Fl = gql`
   query getfl {
     getFl
-    getmessages {
-      content
-      sender
-      receiver
-    }
   }
 `;
 const Send_Message = gql`
@@ -69,7 +65,9 @@ const Index = () => {
                   height="60"
                   className="rounded-full"
                 />
-                <p className="text-white">{user}</p>
+                <Link href={`direct/${user}`}>
+                  <p className="text-white">{user}</p>
+                </Link>
               </div>
             );
           })}
@@ -77,21 +75,6 @@ const Index = () => {
         <div className="w-8/12 border bg-lime-300">
           <div className="w-1/2 m-auto">
             <p className="text-white">send your message privatelly</p>
-            <input
-              type="text"
-              value={Rname}
-              onChange={(e) => setRname(e.target.value)}
-              name="Rname"
-            />
-            <input
-              type="text"
-              value={content}
-              onChange={(e) => setcontent(e.target.value)}
-              name="content"
-            />
-            <button type="submit" onClick={(e) => sndMsg(e)}>
-              snd now
-            </button>
           </div>
         </div>
       </div>

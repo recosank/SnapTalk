@@ -24,7 +24,7 @@ const typeDefs = gql`
     posts(fname: String!): [Post!]!
     allposts: [Post!]!
     getFl: [String]!
-    getmessages: [Message]!
+    getmessages(receiver: String!): [Message]!
   }
   type Mutation {
     addfuser(fname: String!, confirmPassword: String!, password: String!): User!
@@ -34,6 +34,9 @@ const typeDefs = gql`
     addfl(fname: String!): String
     remfl(fname: String!): String
     sendmessage(receiver: String!, content: String!): Message!
+  }
+  type Subscription {
+    newMessage: Message!
   }
 `;
 

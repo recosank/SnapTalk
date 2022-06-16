@@ -114,7 +114,10 @@ export default function account() {
                 </button>
               ) : isAllow ? (
                 <>
-                  <button className="ml-8 px-3 bg-white text-black border font-bold rounded-md">
+                  <button
+                    className="ml-8 px-3 bg-white text-black border font-bold rounded-md"
+                    onClick={(e) => router.push(`direct/${router.query.fname}`)}
+                  >
                     Message{" "}
                   </button>
                   <button
