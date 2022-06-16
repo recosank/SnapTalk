@@ -5,14 +5,33 @@ import Cors from "micro-cors";
 import jwt from "jsonwebtoken";
 import authg from "../../lib/auth";
 import Router from "next/router";
+import { WebSocketServer } from "ws";
+import { makeExecutableSchema } from "@graphql-tools/schema";
+import { useServer } from "graphql-ws/lib/use/ws";
 import { PubSub } from "graphql-subscriptions";
+import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 
 const cors = Cors();
 const pubbsubb = new PubSub();
+const schema = makeExecutableSchema({ typeDefs, resolvers });
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
   csrfPrevention: true,
+  subscriptions: {
+    onConnect: (cnxnParams, webSocket, cnxnContext) => {
+      console.log(cnxnParams);
+      console.log("in subbbbb");
+      console.log(webSocket);
+      console.log(cnxnContext);
+      const cookie = webSocket.upgradeReq.headers.cookie;
+      const userId = getCookie(cookie, "userId");
+      return {
+        loginUser: userId,
+      };
+    },
+  },
+
   context: ({ req, res }) => {
     console.log("in cxt");
 
@@ -62,6 +81,11 @@ const apolloServer = new ApolloServer({
   },
 });
 
+const wsServer = new WebSocketServer({
+  port: 3000,
+  path: "/api/graphql",
+});
+const serverCleanup = useServer({ schema }, wsServer);
 const startServer = apolloServer.start();
 
 export default cors(async function handler(req, res) {
