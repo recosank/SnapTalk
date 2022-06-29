@@ -7,10 +7,15 @@ import profile from "../images/profile.jpg";
 const Header = () => {
   const router = useRouter();
   const [isLogin, setisLogin] = useState(false);
+  const [login_user, setlogin_user] = useState("");
+  const [focu, setfocu] = useState("");
 
   useEffect(() => {
-    const loginUser = localStorage.getItem("fantaUser");
+    const loginUser = JSON.parse(localStorage.getItem("fantaUser"));
     loginUser && setisLogin(true);
+    if (loginUser) {
+      setlogin_user(loginUser);
+    }
   }, [isLogin]);
   return (
     <div className="flex justify-center gap-56 bg-white align-center items-center border shadow-xs ">
@@ -38,7 +43,7 @@ const Header = () => {
         <input
           type="text"
           placeholder="Search"
-          className="bg-zinc-100 text-lg w-52"
+          className="bg-zinc-100 text-sm w-52 focus:outline-none "
           name="headSearch"
         />
       </div>
@@ -48,7 +53,9 @@ const Header = () => {
             xmlns="http://www.w3.org/2000/svg"
             className="h-7 w-7"
             viewBox="0 0 20 20"
-            fill="currentColor"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.2}
             onClick={(e) => router.push("/")}
           >
             <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
@@ -56,11 +63,16 @@ const Header = () => {
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-7 w-7"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-            onClick={(e) => router.push("/direct")}
+            viewBox="0 0 25 25"
+            fill={`${focu === "home" ? "currentColor" : "none"}`}
+            stroke={`${focu === "home" ? "none" : "currentColor"}`}
+            strokeWidth={1.5}
+            onClick={(e) => {
+              e.preventDefault();
+              setfocu("home");
+              console.log(focu);
+              router.push("/direct");
+            }}
           >
             <path
               strokeLinecap="round"
@@ -70,11 +82,18 @@ const Header = () => {
           </svg>
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 rounded-md border-2 border-black"
+            className={`h-6 w-6 rounded-md border-2 ${
+              focu === "add" && "bg-black"
+            } border-black`}
             fill="none"
             viewBox="0 0 24 24"
-            stroke="currentColor"
+            stroke={`${focu === "add" ? "white" : "currentColor"}`}
             strokeWidth={2}
+            onClick={(e) => {
+              e.preventDefault();
+              setfocu("add");
+              console.log("kaka");
+            }}
           >
             <path
               strokeLinecap="round"
@@ -121,6 +140,9 @@ const Header = () => {
             className="rounded-full"
             width="30"
             height="30"
+            onClick={(e) => {
+              router.push(`/${login_user.f}`);
+            }}
           />
         </div>
       ) : (

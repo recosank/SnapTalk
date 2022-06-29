@@ -3,8 +3,10 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import cookie from "cookie";
 import { withFilter } from "graphql-subscriptions";
+//import pubsub from "../lib/pub";
 
 const { pool } = connectToDatabase();
+
 const SECRET =
   "asjkdfa5s4df658ar64f3a54f5425253456544@#%@%^%$^!#$%@#zbsdfbsdfbdsafgb3847tw4y8hgf";
 
@@ -31,6 +33,14 @@ const resolvers = {
       );
       console.log(data.rows[0].following);
       return data.rows[0].following;
+    },
+    getFo: async (_, __, { userId }) => {
+      console.log("in getfo");
+      const data = await pool.query(
+        `SELECT follow FROM fanuser WHERE fname='${userId}';`
+      );
+      console.log(data.rows[0].follow);
+      return data.rows[0].follow;
     },
     allposts: async () => {
       console.log("inposts");
@@ -63,7 +73,11 @@ const resolvers = {
     },
   },
   Mutation: {
-    addfuser: async (_, { fname, confirmPassword, password }, context) => {
+    addfuser: async (
+      _,
+      { fname, confirmPassword, pname, password },
+      context
+    ) => {
       console.log("hwew");
       //CREATE TABLE fanuser(fuid uuid DEFAULT uuid_generate_v4() PRIMARY KEY,fname varchar(50) UNIQUE not null,follow text[] DEFAULT '{}' , following text[] DEFAULT '{}',password varchar(500) not null);
       const existedUser = await pool.query(
@@ -80,7 +94,7 @@ const resolvers = {
       const hasedPasswd = await bcrypt.hash(password, 12);
       console.log(hasedPasswd);
       const user = await pool.query(
-        `INSERT INTO fanuser(fname,password,follow,following) VALUES ('${fname}','${hasedPasswd}','{}','{}') returning *;`
+        `INSERT INTO fanuser(fname,pname,password) VALUES ('${fname}','${pname}','${hasedPasswd}') returning *;`
       );
       console.log(user);
       const token = jwt.sign(
@@ -102,42 +116,61 @@ const resolvers = {
       );
       return user.rows[0];
     },
-    //logfuser: async (_, { fname,password },context) => {
-    //  console.log('hwew');
-    //
-    //  console.log(context);
-    //
-    //
-    //  const existedUser = await pool.query(`SELECT fname FROM fanuser WHERE fname='${fname}';`);
-    //
-    //  console.log(existedUser);
-    //
-    //  if (existedUser.rows.length == 0) {
-    //    console.log("no user");
-    //    return "no alredy"
-    //  }
-    // const hasedPasswd = await bcrypt.compare(password, existedUser.rows[0].password);
-    //
-    //  console.log(hasedPasswd);
-    //
-    //
-    //
-    //  const token = jwt.sign({ name: existedUser.rows[0].fname, _id: existedUser.rows[0].fuid }, SECRET, {
-    //    expiresIn: "8h",
-    //});
-    //context.setHeader(
-    //  "Set-Cookie",
-    //  cookie.serialize("token", token, {
-    //    maxAge: 60 * 60,
-    //    sameSite: "strict",
-    //    path: "/",
-    //    httpOnly: true,
-    //  })
-    //);
-    //
-    //
-    //  return user.rows[0]
-    //},
+    logfuser: async (_, { fname, password }, context) => {
+      console.log("hwew");
+
+      console.log(context);
+
+      const existedUser = await pool.query(
+        `SELECT * FROM fanuser WHERE fname='${fname}';`
+      );
+
+      console.log(existedUser);
+
+      if (existedUser.rows.length === 0) {
+        console.log("no user");
+        return "no alredy";
+      }
+      const hasedPasswd = await bcrypt.compare(
+        password,
+        existedUser.rows[0].password
+      );
+
+      console.log(hasedPasswd);
+      if (!hasedPasswd) {
+        console.log("qrong pssws");
+        return "wrong auth";
+      }
+
+      const token = jwt.sign(
+        { name: existedUser.rows[0].fname, _id: existedUser.rows[0].fuid },
+        SECRET,
+        {
+          expiresIn: "8h",
+        }
+      );
+      context.setHeader(
+        "Set-Cookie",
+        cookie.serialize("token", token, {
+          maxAge: 60 * 60,
+          sameSite: "strict",
+          path: "/",
+          httpOnly: true,
+        })
+      );
+
+      return existedUser.rows[0];
+    },
+    update_fuser: async (_, { isopen }, ctx) => {
+      console.log("in uPRofi");
+      console.log(isopen);
+      const user_Id = ctx.userId;
+      const data = await pool.query(
+        `UPDATE fanuser SET isopen = ${isopen} WHERE fname='${user_Id}' returning *;`
+      );
+      console.log(data);
+      return data.rows[0];
+    },
     addfpost: async (_, { title }, context) => {
       console.log("hwew");
       const user_Id = context.userId;
@@ -148,10 +181,24 @@ const resolvers = {
       console.log(post.rows[0]);
       return post.rows[0];
     },
-    updatefpost: async (_, { title, fuid }) => {
-      console.log("hwew");
+    updateAddLike: async (_, { puid }, ctx) => {
+      console.log("in up addLike post");
+      const user_Id = ctx.userId;
+      console.log(user_Id);
+      console.log(puid);
       const post = await pool.query(
-        `UPDATE fanpost SET title='${title}' WHERE user_uid = '${fuid}' returning *;`
+        `UPDATE fanpost SET likes = array_append(likes,'${user_Id}') WHERE puid = '${puid}' returning *;`
+      );
+      console.log(post.rows[0]);
+      return post.rows[0];
+    },
+    updateRemLike: async (_, { puid }, ctx) => {
+      console.log("in up Remlike post");
+      const user_Id = ctx.userId;
+      console.log(user_Id);
+      console.log(puid);
+      const post = await pool.query(
+        `UPDATE fanpost SET likes = array_remove(likes,'${user_Id}') WHERE puid = '${puid}'  returning *;`
       );
       console.log(post.rows[0]);
       return post.rows[0];
@@ -162,7 +209,7 @@ const resolvers = {
       //CREATE OR REPLACE FUNCTION addfl(l VARCHAR(50),o VARCHAR(50)) RETURNS text[] AS $$ UPDATE fanuser SET following = array_append(following,o) WHERE fname = l returning *; UPDATE fanuser SET follow = array_append(follow,l) WHERE fname = o returning follow $$ LANGUAGE SQL;
       const post = await pool.query(`SELECT addfl('${user_Id}','${fname}');`);
       console.log(post.rows[0]);
-      return post.rows[0].addfl;
+      return "done";
     },
     remfl: async (_, { fname }, context) => {
       console.log("following");
@@ -172,32 +219,38 @@ const resolvers = {
       console.log(post.rows[0]);
       return post.rows[0].adddffflll;
     },
-    sendmessage: async (_, { receiver, content }, { userId, pubsub }) => {
+    sendmessage: async (_, { receiver, content }) => {
+      //, { userId, pubsub }
       console.log("in sendmessage");
-      const data = await pool.query(
-        `INSERT INTO message(content,sender,receiver) VALUES ('${content}','${userId}','${receiver}') returning *;`
-      );
-
-      console.log(data.rows);
-      pubsub.publish("NEW_MESSAGE", { newMessage: data.rows[0] });
-      return data.rows[0];
+      //  const data = await pool.query(
+      //    `INSERT INTO message(content,sender,receiver) VALUES ('${content}','${userId}','${receiver}') returning *;`
+      //  );
+      //
+      //  console.log(data.rows);
+      //  pubsub.publish("NEW_MESSAGE", { newMessage: data.rows[0] });
+      //  return data.rows[0];
     },
   },
   Subscription: {
     newMessage: {
-      subscribe: withFilter(
-        (_, __, { pubsub, userId }) => {
-          if (!userId) throw new AuthenticationError("Unauthenticated");
-          return pubsub.asyncIterator("NEW_MESSAGE");
-        },
-        ({ newMessage }, _, { userId }) => {
-          if (newMessage.sender === userId || newMessage.receiver === userId) {
-            return true;
-          }
+      subscribe: async (ctx) => {
+        //withFilter((_, __, req) => {
+        //console.log(pubsub);
+        console.log("checj ut iyt");
+        //console.log(arg);
+        console.log(ctx);
 
-          return false;
-        }
-      ),
+        //return "yes";
+        //  if (!userId) throw new AuthenticationError("Unauthenticated");
+        //return pubsub.asyncIterator("NEW_MESSAGE");
+        //},
+        //({ newMessage }, _, { userId }) => {
+        //  if (newMessage.sender === userId || newMessage.receiver === userId) {
+        //    return true;
+        //  }
+        //
+        //  return false;
+      },
     },
   },
 };

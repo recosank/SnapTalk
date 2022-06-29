@@ -1,15 +1,21 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { gql, useMutation } from "@apollo/client";
+import instlogo from "../images/instlogo.png";
+import Image from "next/image";
+import bfb from "../images/bfb.png";
+import styles from "../styles/Home.module.css";
 
 const Add_FUser = gql`
   mutation addFUser(
     $fname: String!
+    $pname: String!
     $confirmPassword: String!
     $password: String!
   ) {
     addfuser(
       fname: $fname
+      pname: $pname
       confirmPassword: $confirmPassword
       password: $password
     ) {
@@ -19,10 +25,15 @@ const Add_FUser = gql`
 `;
 
 const Signup = () => {
-  const init = { fname: "", password: "", confirmPassword: "" };
+  const init = {
+    fname: "",
+    password: "",
+    confirmPassword: "",
+    fullName: "",
+    emailNum: "",
+  };
   const [uInfo, setuInfo] = useState(init);
   const router = useRouter();
-  console.log(router);
 
   const chgUserData = (e) => {
     e.preventDefault();
@@ -34,19 +45,20 @@ const Signup = () => {
     adduser({
       variables: {
         fname: uInfo.fname,
+        pname: uInfo.fullName,
         password: uInfo.password,
         confirmPassword: uInfo.confirmPassword,
       },
     });
   };
-  console.log(uInfo);
+
   if (loading) {
     return <p>loading</p>;
   }
   if (data) {
-    console.log(data.addfuser.fname);
     if (data.addfuser.fname === uInfo.fname) {
-      localStorage.setItem("fantaUser", uInfo.fname);
+      const d = { f: uInfo.fname, p: uInfo.fullName };
+      localStorage.setItem("fantaUser", JSON.stringify(d));
       router.push("/addPost");
     }
   }
@@ -54,53 +66,113 @@ const Signup = () => {
     console.log(error);
   }
   return (
-    <div className="flex justify-center items-center">
-      <form
-        action="/api/adduser"
-        encType="multipart/form-data"
-        className="border-4 mt-20 space-y-4 p-4"
-        method="POST"
-        onSubmit={handleaccount}
-      >
-        <div className="flex flex-col">
-          <label className="text-xs ">username</label>
-          <input
-            type="text"
-            placeholder="username"
-            className="border-2 p-0.5 text-sm"
-            value={uInfo.fname}
-            onChange={(e) => chgUserData(e)}
-            name="fname"
-          />
+    <div className="flex justify-center flex-col items-center bg-zinc-50 h-screen">
+      <div className={`border-2 bg-white ${styles.signupCard}`}>
+        <div className="text-center mt-10">
+          <Image src={instlogo} width="190" height="70" className="m-3" />
         </div>
-
-        <div className="flex flex-col">
-          <label className="text-xs ">password</label>
-          <input
-            type="password"
-            placeholder="enter your password"
-            name="password"
-            className="border-2 p-0.5 text-sm"
-            value={uInfo.password}
-            onChange={(e) => chgUserData(e)}
-          />
-        </div>
-        <div className="flex flex-col">
-          <label className="text-xs ">confirm password</label>
-          <input
-            type="password"
-            placeholder="confirm password"
-            name="confirmPassword"
-            className="border-2 p-0.5 text-sm"
-            value={uInfo.confirmPassword}
-            onChange={(e) => chgUserData(e)}
-          />
-        </div>
-
-        <button className="border-2 " type="submit">
-          boooom !!!
+        <p className="text-center text-md tracking-wide px-10 text-zinc-500 font-bold">
+          Sign up to see photos and videos from your friends.
+        </p>
+        <button className="w-4/5 flex p-2 justify-center gap-2 rounded-md mt-4 ml-8 bg-black text-white font-bold text-sm">
+          <Image src={bfb} width="20" height="15" />
+          Log in with Facebook
         </button>
-      </form>
+        <div className={`${styles.divider} mx-7 mt-4 text-sm text-zinc-500 `}>
+          OR
+        </div>
+        <form
+          action="/api/adduser"
+          encType="multipart/form-data"
+          className="mt-4 space-y-2 px-9 mb-14"
+          method="POST"
+          onSubmit={(e) => handleaccount(e)}
+        >
+          <div className="flex flex-col">
+            <input
+              type="text"
+              className="border-2  text-xs p-2 rounded-md bg-zinc-50"
+              value={uInfo.emailNum}
+              placeholder="Mobile Number or Email"
+              onChange={(e) => chgUserData(e)}
+              name="emailNum"
+            />
+          </div>
+          <div className="flex flex-col">
+            <input
+              type="text"
+              className="border-2 text-xs p-2 rounded-md bg-zinc-50"
+              value={uInfo.fullName}
+              placeholder="Full Name"
+              onChange={(e) => chgUserData(e)}
+              name="fullName"
+            />
+          </div>
+          <div className="flex flex-col">
+            <input
+              type="text"
+              className="border-2 text-xs p-2 rounded-md bg-zinc-50"
+              value={uInfo.fname}
+              placeholder="Username"
+              onChange={(e) => chgUserData(e)}
+              name="fname"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <input
+              type="password"
+              placeholder="Password"
+              name="password"
+              className="border-2 text-xs p-2 rounded-md bg-zinc-50"
+              value={uInfo.password}
+              onChange={(e) => chgUserData(e)}
+            />
+          </div>
+          <div className="flex flex-col">
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              name="confirmPassword"
+              className="border-2 text-xs p-2 rounded-md bg-zinc-50"
+              value={uInfo.confirmPassword}
+              onChange={(e) => chgUserData(e)}
+            />
+          </div>
+          <p className="text-xs text-center py-2.5 tracking-wide text-zinc-500">
+            People who use our service may have uploaded your contact
+            information to Instagram.
+            <span className="text-zinc-800"> Learn More</span>
+          </p>
+          <p className="text-xs text-center pb-2.5 tracking-wide text-zinc-500">
+            By signing up, you agree to our{" "}
+            <span className="text-zinc-800">
+              {" "}
+              Terms , Data Policy and Cookies Policy .
+            </span>
+          </p>
+
+          <button
+            className="w-full bg-black font-bold py-1 rounded-md text-white"
+            type="submit"
+          >
+            Sign up
+          </button>
+        </form>
+      </div>
+      <div
+        className={`mt-3 p-5 border-2 bg-white text-center ${styles.signupCard}`}
+      >
+        <p>
+          Have an account?{" "}
+          <span
+            className="text-blue-900"
+            onClick={(e) => router.push("/login")}
+          >
+            Login
+          </span>
+        </p>
+      </div>
     </div>
   );
 };

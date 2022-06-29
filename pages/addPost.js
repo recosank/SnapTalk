@@ -1,43 +1,84 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useMutation, useSubscription } from "@apollo/client";
+import useSWR, { SWRConfig, useSWRConfig } from "swr";
+import axios from "axios";
+
+import request from "graphql-request";
+//const MESSAGE_SUBSCRIPTION = gql`
+//  subscription OnMessageAdded($muid: String) {
+//    newMessage(muid: $muid) {
+//      muid
+//      sender
+//      receiver
+//      content
+//    }
+//  }
+//`;
 
 const Add_FPost = gql`
   mutation addFPost($title: String!) {
     addfpost(title: $title) {
       title
       user_name
+      puid
+      likes
     }
   }
 `;
+const Get_FPost = `
+  {
+   allposts {
+      title
+      likes
+      user_name
+    }
+  }`;
 
 const Post = () => {
+  const fetcher = (query) => request("/api/graphql", query);
+  const { mutate } = useSWRConfig();
+  const router = useRouter();
+  const { data, error } = useSWR(Get_FPost, fetcher);
+  console.log("swr data");
+  let tl = [];
+  console.log(data);
+  if (data) {
+    tl = data.allposts;
+  }
+  console.log(error);
+
   const init = { title: "" };
   const [pInfo, setpInfo] = useState(init);
-  const router = useRouter();
 
   const chgUserData = (e) => {
     e.preventDefault();
     setpInfo({ ...pInfo, [e.target.name]: e.target.value });
   };
-  const [addpost, { data, loading, error }] = useMutation(Add_FPost);
+  const [addpost, { data: md, loading: ml, error: me }] =
+    useMutation(Add_FPost);
   const handleaccount = (e) => {
     e.preventDefault();
+
     addpost({ variables: { title: pInfo.title } });
   };
   console.log(pInfo);
-  if (loading) {
+
+  if (ml) {
     return <p>loading</p>;
   }
-  if (data) {
-    console.log("data");
-    console.log(data);
+  if (md) {
+    console.log(md);
+
+    if (data) {
+      tl.push(md.addfpost);
+    }
   }
-  if (error) {
-    console.log(error);
+  if (me) {
+    console.log(me);
   }
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex justify-center flex-col items-center">
       <form
         action="/api/adduser"
         encType="multipart/form-data"
@@ -61,6 +102,10 @@ const Post = () => {
           boooom !!!
         </button>
       </form>
+      {data &&
+        tl.map((p, key) => {
+          return <p key={key}>{p.title}</p>;
+        })}
     </div>
   );
 };

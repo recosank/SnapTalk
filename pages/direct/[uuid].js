@@ -5,7 +5,7 @@ import { gql, useQuery } from "@apollo/client";
 import Image from "next/image";
 import profile from "../../images/profile.jpg";
 import { useRouter } from "next/router";
-import { useMutation } from "@apollo/client";
+import { useMutation, useSubscription } from "@apollo/client";
 import Link from "next/link";
 
 const Get_Fl = gql`
@@ -18,6 +18,17 @@ const Get_Fl = gql`
     }
   }
 `;
+const MESSAGE_SUBSCRIPTION = gql`
+  subscription OnMessageAdded {
+    newMessage {
+      muid
+      sender
+      receiver
+      content
+    }
+  }
+`;
+
 const Send_Message = gql`
   mutation msg($receiver: String!, $content: String!) {
     sendmessage(receiver: $receiver, content: $content) {
@@ -30,31 +41,39 @@ const Send_Message = gql`
 const chataccount = () => {
   const [content, setcontent] = useState("");
   const router = useRouter();
-  const [sndmsg, { data: md, loading: ml, error: me }] =
-    useMutation(Send_Message);
-  const { loading, error, data } = useQuery(Get_Fl, {
-    variables: { receiver: router.query.uuid },
-  });
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-  if (error) {
-    console.error(error);
-    return <div>Error!</div>;
-  }
-  if (data) {
-    console.log(data);
-  }
-
-  console.log(md);
+  //const [sndmsg, { data: md, loading: ml, error: me }] =
+  //  useMutation(Send_Message);
+  const {
+    data: sd,
+    loading: sl,
+    error: se,
+  } = useSubscription(MESSAGE_SUBSCRIPTION);
+  console.log("subdaata");
+  console.log(sd);
+  console.log(se);
+  //const { loading, error, data } = useQuery(Get_Fl, {
+  //  variables: { receiver: router.query.uuid },
+  //});
+  //if (loading) {
+  //  return <div>Loading...</div>;
+  //}
+  //if (error) {
+  //  console.error(error);
+  //  return <div>Error!</div>;
+  //}
+  //if (data) {
+  //  console.log(data);
+  //}
+  //
+  //console.log(md);
   const sndMsg = (e) => {
     e.preventDefault();
-    sndmsg({
-      variables: {
-        receiver: router.query.uuid,
-        content: content,
-      },
-    });
+    //sndmsg({
+    //  variables: {
+    //    receiver: router.query.uuid,
+    //    content: content,
+    //  },
+    //});
   };
 
   return (
@@ -62,26 +81,28 @@ const chataccount = () => {
       <Header />
       <div className="flex mt-7 mx-auto w-1/2 h-screen bg-white">
         <div className="w-4/12 border">
-          {data.getFl.map((user, k) => {
-            return (
-              <div
-                className={`flex gap-2 items-center ${
-                  user === router.query.uuid ? "bg-black" : "bg-gray-900"
-                }`}
-                key={k}
-              >
-                <Image
-                  src={profile}
-                  width="60"
-                  height="60"
-                  className="rounded-full"
-                />
-                <Link href={`${user}`}>
-                  <p className="text-white">{user}</p>
-                </Link>
-              </div>
-            );
-          })}
+          {
+            //{data.getFl.map((user, k) => {
+            //  return (
+            //    <div
+            //      className={`flex gap-2 items-center ${
+            //        user === router.query.uuid ? "bg-black" : "bg-gray-900"
+            //      }`}
+            //      key={k}
+            //    >
+            //      <Image
+            //        src={profile}
+            //        width="60"
+            //        height="60"
+            //        className="rounded-full"
+            //      />
+            //      <Link href={`${user}`}>
+            //        <p className="text-white">{user}</p>
+            //      </Link>
+            //    </div>
+            //  );
+            //})}
+          }
         </div>
         <div className="w-8/12 border bg-lime-300">
           <div className="w-1/2 m-auto">
@@ -96,9 +117,11 @@ const chataccount = () => {
               snd now
             </button>
           </div>
-          {data.getmessages.map((msg, k) => {
-            return <p key={k}>{msg.content}</p>;
-          })}
+          {
+            //{data.getmessages.map((msg, k) => {
+            //  return <p key={k}>{msg.content}</p>;
+            //})}
+          }
         </div>
       </div>
     </div>

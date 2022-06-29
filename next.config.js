@@ -3,7 +3,11 @@ const nextConfig = {
   env: {
     ROOT: __dirname,
   },
-  reactStrictMode: true,
+
+  webpack(config) {
+    config.resolve.modules.push(__dirname);
+    return config;
+  },
   staticPageGenerationTimeout: "60",
 
   future: { webpack5: true },

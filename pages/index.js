@@ -1,30 +1,34 @@
-//import Head from 'next/head'
 import Image from "next/image";
-//import styles from '../styles/Home.module.css'
+import styles from "../styles/Home.module.css";
 import Header from "../components/header";
 import authg from "../lib/auth";
 import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { gql, useQuery } from "@apollo/client";
 import profile from "../images/profile.jpg";
 import def from "../images/def.jpg";
 import { initializeApollo } from "../lib/apollo";
 import HPosts from "../components/posts";
+import { router } from "websocket";
 
 const Get_FUser = gql`
   query getfposts {
     users {
       fname
     }
-
+    getFl
     allposts {
       title
+      puid
+      likes
       user_name
     }
   }
 `;
 export default function Home() {
   const router = useRouter();
+  const [login_user, setlogin_user] = useState({});
   //const { data, error, loading } = useQuery(GET_PRODUCT_BY_ID, {     send query with var
   //  variables: { code: VARIABLE },
   //});
@@ -39,26 +43,40 @@ export default function Home() {
   if (data) {
     console.log(data);
   }
-  const login_user = "iamhasley";
-  //typeof window !== "undefined" ? localStorage.getItem("fantaUser") : "";
-  //
-  //{data.users.map((user, key) => {
-  //  return (
-  //    <div key={key} className="flex">
-  //      <Link href={`${user.fname}`}>
-  //        <a>{user.fname}</a>
-  //      </Link>
-  //    </div>
-  //  );
-  //})}
+  useEffect(() => {
+    const l =
+      typeof window !== "undefined"
+        ? JSON.parse(localStorage.getItem("fantaUser"))
+        : "";
+    setlogin_user(l);
+  }, []);
 
   return (
-    <div className="w-full bg-zinc-50">
+    <div className="w-full bg-slate-50">
       <Header />
-      <div className="flex mt-7 w-5/12 mx-auto ">
+      <div className={`flex mt-7 ${styles.homeCard} mx-auto`}>
         <div className="mr-10 w-7/12">
-          <div className="flex"></div>
-          <div>
+          <div
+            className={`flex p-2 w-full bg-white border rounded-lg ${styles.hdnscrollbar} overflow-x-auto overscroll-x-none`}
+          >
+            {data.getFl.map((user, key) => {
+              return (
+                <div key={key} className="text-center mr-2 w-1/5">
+                  <Image
+                    src={profile}
+                    layout="fixed"
+                    width="60"
+                    height="60"
+                    className="rounded-full"
+                  />
+                  <p className="text-center text-xs">
+                    {user.length >= 9 ? user.slice(0, 9) + "..." : user}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-5">
             {data.allposts.map((post, key) => {
               return (
                 <div key={key}>
@@ -69,23 +87,28 @@ export default function Home() {
           </div>
         </div>
         <div className="w-5/12 h-screen">
-          <div className="flex items-center">
+          <div
+            className="flex items-center"
+            onClick={(e) => {
+              router.push(`/${login_user.f}`);
+            }}
+          >
             <Image
               src={profile}
-              width="70"
-              height="70"
+              width="60"
+              height="60"
               className="rounded-full"
             />
             <div className="grow mx-3">
-              <p className="text-sm">{login_user}</p>
-              <p>snowman</p>
+              <p className="text-sm text-black tracking-wide">{login_user.f}</p>
+              <p className="text-md text-gray-400 mt-0.5">{login_user.p}</p>
             </div>
-            <button className="text-lime-800">switch</button>
+            <button className="text-xs text-emerald-600">switch</button>
           </div>
-          <div className="mt-2">
+          <div className="mt-3 text-center">
             <div className="flex justify-between items-center">
-              <p className="text-gray-500">suggestions for you</p>
-              <p>see all</p>{" "}
+              <p className="text-gray-500 text-sm">Suggestions For You</p>
+              <p className="text-xs">See All</p>{" "}
             </div>
           </div>
         </div>
@@ -95,56 +118,36 @@ export default function Home() {
 }
 export const getServerSideProps = async (ctx) => {
   const { req } = ctx;
-
   if (req?.headers.cookie) {
-    //const tt ={
-    //  initialState: null,
-    //  ctx :ctx
-    //}
     let initialState;
     const apolloClient = await initializeApollo(
       (initialState = null),
       (ctx = ctx)
     );
     console.log("in ssr");
-
     try {
       await apolloClient.query({
         query: Get_FUser,
         //variables: { code: req.headers.cookie },
       });
-
       console.log(apolloClient);
-      //const f = apolloClient.text
       return {
         props: { initialApolloState: await apolloClient.cache.extract() },
       };
-
-      // Handle what you want to do with this data / Just cache it
     } catch (error) {
-      console.log("pppp");
-
+      console.log("home error");
       console.log(error);
-
       //const gqlError = error.graphQLErrors[0];
       //if (gqlError) {
       //  //Handle your error cases
       //}
     }
   }
+  console.log("no cokkie");
+  return {
+    redirect: {
+      destination: "/signup",
+      permanent: false,
+    },
+  };
 };
-//export const getServerSideProps = async ({req,res}) => {
-//
-// console.log(req.cookies.token);
-//  const user_id = authg(req.cookies.token)
-//  const apolloClient = initializeApollo();
-//  await apolloClient.query({
-//    query: Get_FPost,
-//    variables: { code: user_id },
-//
-//  })
-//  console.log('data');
-//  console.log(apolloClient);
-//
-//  return { props: { initialApolloState: apolloClient.cache.extract() } };
-//};
