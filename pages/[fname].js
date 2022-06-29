@@ -8,12 +8,16 @@ import def from "../images/def.jpg";
 import { initializeApollo } from "../lib/apollo";
 import useSWR from "swr";
 import request from "graphql-request";
+import Userpost from "../components/userpost";
+import { useApolloClient } from "@apollo/client";
 
 const Get_FPost = gql`
   query getfposts($fname: String!) {
     posts(fname: $fname) {
       title
       user_name
+      likes
+      puid
     }
     user(fname: $fname) {
       fname
@@ -39,10 +43,16 @@ const Rem_Fl = gql`
     remfl(fname: $fname)
   }
 `;
-export default function account() {
+export default function account(fs) {
+  const client = useApolloClient();
+  console.log(client.cache);
+
+  console.log(fs.initialApolloState.ROOT_QUERY);
   const [isLogin, setisLogin] = useState(false);
   const [isUser, setisUser] = useState(false);
   const [isAllow, setisAllow] = useState(false);
+  const [isPostOpen, setisPostOpen] = useState(false);
+  const [loginname, setloginname] = useState("");
   const fetcher = (query) => request("/api/graphql", query);
   const router = useRouter();
   const { data, error } = useSWR(Get_FUser, fetcher);
@@ -84,13 +94,29 @@ export default function account() {
       },
     });
   };
+  const closePost = () => {
+    setisPostOpen(false);
+  };
+  const debby = client.readQuery({
+    query: Get_FPost,
+
+    variables: {
+      // Provide any required variables here.  Variables of mismatched types will return `null`.
+
+      fname: router.asPath.slice(1),
+    },
+  });
+  if (debby) {
+    console.log("debby");
+    console.log(debby);
+  }
   useEffect(() => {
     let loginUser = JSON.parse(localStorage.getItem("fantaUser")).f;
-    loginUser && setisLogin(true);
+    loginUser && setisLogin(true) && setloginname(loginUser);
     isLogin && loginUser == router.asPath.slice(1) && setisUser(true);
     isLogin && qdata.user.follow.includes(loginUser) && setisAllow(true);
   }, [isLogin, isAllow]);
-
+  console.log(isAllow);
   return (
     <div className="border bg-slate-50">
       <Header />
@@ -146,6 +172,7 @@ export default function account() {
                   <button
                     className="ml-8 px-3 bg-white text-black border font-bold rounded-md"
                     onClick={(e) => {
+                      e.preventDefault();
                       setisAllow(false);
                       remfl(e, `${qdata.user.fname}`);
                     }}
@@ -212,9 +239,15 @@ export default function account() {
         {(isAllow || qdata.user.isopen || isUser) && (
           <div className="border-t-2 mt-14">
             <div className="flex justify-center">
-              <p className="border-t-2 mr-12 border-black py-2.5">POSTS</p>
-              <p className="border-t-2 mr-12 border-black py-2.5">VIDEOS</p>
-              <p className="border-t-2 mr-12 border-black py-2.5">TAGGED</p>
+              <p className="border-t-2 text-xs mr-12 border-black py-2.5">
+                POSTS
+              </p>
+              <p className="border-t-2 text-xs mr-12 border-black py-2.5">
+                VIDEOS
+              </p>
+              <p className="border-t-2 text-xs mr-12 border-black py-2.5">
+                TAGGED
+              </p>
             </div>
             <div className="grid items grid-cols-3 gap-7">
               {qdata.posts.map((i, id) => {
@@ -226,7 +259,14 @@ export default function account() {
                       className=""
                       width="300"
                       height="300"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setisPostOpen((p) => !p);
+                      }}
                     />{" "}
+                    {isPostOpen && (
+                      <Userpost data={i} l={loginname} c={closePost} />
+                    )}
                   </div>
                 );
               })}

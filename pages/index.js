@@ -56,26 +56,28 @@ export default function Home() {
       <Header />
       <div className={`flex mt-7 ${styles.homeCard} mx-auto`}>
         <div className="mr-10 w-7/12">
-          <div
-            className={`flex p-2 w-full bg-white border rounded-lg ${styles.hdnscrollbar} overflow-x-auto overscroll-x-none`}
-          >
-            {data.getFl.map((user, key) => {
-              return (
-                <div key={key} className="text-center mr-2 w-1/5">
-                  <Image
-                    src={profile}
-                    layout="fixed"
-                    width="60"
-                    height="60"
-                    className="rounded-full"
-                  />
-                  <p className="text-center text-xs">
-                    {user.length >= 9 ? user.slice(0, 9) + "..." : user}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
+          {data.getFl.length != 0 && (
+            <div
+              className={`flex p-2 w-full bg-white border rounded-lg ${styles.hdnscrollbar} overflow-x-auto overscroll-x-none`}
+            >
+              {data.getFl.map((user, key) => {
+                return (
+                  <div key={key} className="text-center mr-2 w-1/5">
+                    <Image
+                      src={profile}
+                      layout="fixed"
+                      width="60"
+                      height="60"
+                      className="rounded-full"
+                    />
+                    <p className="text-center text-xs">
+                      {user.length >= 9 ? user.slice(0, 9) + "..." : user}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
           <div className="mt-5">
             {data.allposts.map((post, key) => {
               return (

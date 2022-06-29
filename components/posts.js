@@ -36,11 +36,11 @@ const HPosts = ({ data }) => {
     setlogedin(l.f);
   }, [logedin, isLiked]);
 
-  console.log(logedin);
-  console.log(isLiked);
   const [upPos, { data: md, loading: ml, error: me }] =
     useMutation(update_addlike);
-  console.log(md);
+  if (md) {
+    console.log(md);
+  }
   const [upPost, { data: mmd, loading: mml, error: mme }] =
     useMutation(update_remlike);
   const handleAddLk = (e) => {
@@ -61,10 +61,9 @@ const HPosts = ({ data }) => {
       },
     });
   };
-
   return (
     <div className="mb-7 bg-white border rounded-lg">
-      <div className="flex mb-2 bg-white justify-between px-3 py-1 items-center">
+      <div className="flex mb-2  justify-between px-3 py-1 rounded-lg items-center">
         <div className="flex gap-2 items-center mt-1.5">
           <Image
             src={profile}

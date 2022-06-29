@@ -59,7 +59,7 @@ const Signup = () => {
     if (data.addfuser.fname === uInfo.fname) {
       const d = { f: uInfo.fname, p: uInfo.fullName };
       localStorage.setItem("fantaUser", JSON.stringify(d));
-      router.push("/addPost");
+      router.push("/");
     }
   }
   if (error) {

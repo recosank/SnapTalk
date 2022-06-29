@@ -82,7 +82,7 @@ const Header = () => {
           </svg>
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className={`h-6 w-6 rounded-md border-2 ${
+            className={`h-6 w-6 rounded-lg border-2 ${
               focu === "add" && "bg-black"
             } border-black`}
             fill="none"
@@ -93,6 +93,7 @@ const Header = () => {
               e.preventDefault();
               setfocu("add");
               console.log("kaka");
+              router.push("/addPost");
             }}
           >
             <path

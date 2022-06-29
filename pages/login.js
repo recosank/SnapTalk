@@ -43,7 +43,7 @@ const Login = () => {
   if (data) {
     if (data.logfuser.fname === uInfo.fname) {
       localStorage.setItem("fantaUser", uInfo.fname);
-      router.push("/addPost");
+      router.push("/");
     }
   }
   if (error) {
