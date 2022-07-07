@@ -21,7 +21,15 @@ const typeDefs = gql`
     sender: String!
     receiver: String!
   }
+  type Comment {
+    postuid: String!
+    cuid: String!
+    user_name: String!
+    content: String!
+    replies: [String]!
+  }
   type Query {
+    lg: User!
     user(fname: String!): User!
     users: [User!]!
     posts(fname: String!): [Post!]!
@@ -29,6 +37,7 @@ const typeDefs = gql`
     getFl: [String]!
     getFo: [String]!
     getmessages(receiver: String!): [Message]!
+    searchUser(subStr: String!): [User!]!
   }
   type Mutation {
     addfuser(
@@ -38,8 +47,14 @@ const typeDefs = gql`
       password: String!
     ): User!
     logfuser(fname: String!, password: String!): User!
-    update_fuser(isopen: Boolean!): User!
+    update_fuser(isopen: Boolean!, pname: String, fname: String): User!
+    chgPass(
+      confirmPassword: String!
+      password: String!
+      oldPassword: String!
+    ): User!
     addfpost(title: String!): Post!
+    addcomment(postuid: String!, content: String!): Comment!
     updateAddLike(puid: String): Post!
     updateRemLike(puid: String): Post!
     addfl(fname: String!): String

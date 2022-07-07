@@ -15,6 +15,15 @@ const update_addlike = gql`
     }
   }
 `;
+const update_cmt = gql`
+  mutation update_cmt($content: String!, $postuid: String!) {
+    addcomment(content: $content, postuid: $postuid) {
+      user_name
+      content
+    }
+  }
+`;
+
 const update_remlike = gql`
   mutation update_post($puid: String) {
     updateRemLike(puid: $puid) {
@@ -27,6 +36,7 @@ const HPosts = ({ data }) => {
   const [logedin, setlogedin] = useState("");
   const likedata = data.likes.includes(`${logedin}`);
   const [isLiked, setisLiked] = useState(likedata);
+  const [cmmnt, setcmmnt] = useState("");
 
   useEffect(() => {
     const l =
@@ -35,7 +45,7 @@ const HPosts = ({ data }) => {
         : "";
     setlogedin(l.f);
   }, [logedin, isLiked]);
-
+  const [upCmt, { data: cd, loading: cl, error: ce }] = useMutation(update_cmt);
   const [upPos, { data: md, loading: ml, error: me }] =
     useMutation(update_addlike);
   if (md) {
@@ -49,6 +59,15 @@ const HPosts = ({ data }) => {
     upPos({
       variables: {
         puid: data.puid,
+      },
+    });
+  };
+  const handlecmmnt = (e) => {
+    e.preventDefault();
+    upCmt({
+      variables: {
+        postuid: data.puid,
+        content: cmmnt,
       },
     });
   };
@@ -191,8 +210,18 @@ const HPosts = ({ data }) => {
           placeholder="Add a comment..."
           className="flex-1 pl-3 text-sm focus:outline-none resize-none"
           rows="1"
+          value={cmmnt}
+          onChange={(e) => {
+            e.preventDefault();
+            setcmmnt(e.target.value);
+          }}
         />
-        <button className="text-blue-500 font-bold">Post</button>
+        <button
+          onClick={(e) => handlecmmnt(e)}
+          className="text-blue-500 font-bold"
+        >
+          Post
+        </button>
       </div>
     </div>
   );

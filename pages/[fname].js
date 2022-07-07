@@ -9,7 +9,10 @@ import { initializeApollo } from "../lib/apollo";
 import useSWR from "swr";
 import request from "graphql-request";
 import Userpost from "../components/userpost";
+import FollowPage from "../components/followpage";
 import { useApolloClient } from "@apollo/client";
+import FollowingPage from "../components/followingpage";
+import { useRef } from "react";
 
 const Get_FPost = gql`
   query getfposts($fname: String!) {
@@ -25,6 +28,15 @@ const Get_FPost = gql`
       pname
       following
       follow
+    }
+  }
+`;
+const Get_FPosts = gql`
+  query getfpost {
+    allposts {
+      title
+      likes
+      user_name
     }
   }
 `;
@@ -45,20 +57,30 @@ const Rem_Fl = gql`
 `;
 export default function account(fs) {
   const client = useApolloClient();
-  console.log(client.cache);
-
-  console.log(fs.initialApolloState.ROOT_QUERY);
+  //console.log(fs.initialApolloState.ROOT_QUERY);
   const [isLogin, setisLogin] = useState(false);
   const [isUser, setisUser] = useState(false);
   const [isAllow, setisAllow] = useState(false);
   const [isPostOpen, setisPostOpen] = useState(false);
+  const [isfoOpen, setisfoOpen] = useState(false);
+  const [isflOpen, setisflOpen] = useState(false);
   const [loginname, setloginname] = useState("");
   const fetcher = (query) => request("/api/graphql", query);
   const router = useRouter();
   const { data, error } = useSWR(Get_FUser, fetcher);
-  console.log("swr data");
-  console.log(data);
-  console.log(error);
+  let prf = useRef(null);
+  const handleAvtarChg = (e) => {
+    e.preventDefault();
+    const newProfile = e.target.files[0];
+    console.log(newProfile);
+  };
+  const handleAvtar = () => {
+    prf.current.click();
+  };
+
+  //console.log("swr data");
+  //console.log(data);
+  //console.log(error);
   const {
     loading: qloading,
     error: qerror,
@@ -74,9 +96,32 @@ export default function account(fs) {
     return <div>Error!</div>;
   }
   if (qdata) {
-    console.log(qdata);
+    //console.log(qdata);
   }
-  const [adfl, { data: md, loading: ml, error: me }] = useMutation(Add_Fl);
+  const [adfl, { loading: ml, error: me }] = useMutation(Add_Fl, {
+    update(cache, { data }) {
+      const datat = cache.readQuery({
+        query: Get_FPost,
+        variables: {
+          fname: router.asPath.slice(1),
+        },
+      });
+      console.log("cache data");
+      cache.writeQuery({
+        query: Get_FPost,
+        data: {
+          posts: [...datat.posts],
+          user: {
+            ...datat.user,
+            follow: [...JSON.parse(data.addfl)],
+          },
+        },
+        variables: {
+          fname: router.asPath.slice(1),
+        },
+      });
+    },
+  });
   const aaddfl = (e, user) => {
     e.preventDefault();
     adfl({
@@ -85,7 +130,29 @@ export default function account(fs) {
       },
     });
   };
-  const [rmfl, { data: mrd, loading: mrl, error: mre }] = useMutation(Rem_Fl);
+  const [rmfl, { data: mrd, loading: mrl, error: mre }] = useMutation(Rem_Fl, {
+    update(cache, { data }) {
+      const datat = cache.readQuery({
+        query: Get_FPost,
+        variables: {
+          fname: router.asPath.slice(1),
+        },
+      });
+      cache.writeQuery({
+        query: Get_FPost,
+        data: {
+          posts: [...datat.posts],
+          user: {
+            ...datat.user,
+            follow: [...JSON.parse(data.remfl)],
+          },
+        },
+        variables: {
+          fname: router.asPath.slice(1),
+        },
+      });
+    },
+  });
   const remfl = (e, user) => {
     e.preventDefault();
     rmfl({
@@ -97,12 +164,15 @@ export default function account(fs) {
   const closePost = () => {
     setisPostOpen(false);
   };
+  const closeFo = () => {
+    setisfoOpen(false);
+  };
+  const closeFl = () => {
+    setisflOpen(false);
+  };
   const debby = client.readQuery({
     query: Get_FPost,
-
     variables: {
-      // Provide any required variables here.  Variables of mismatched types will return `null`.
-
       fname: router.asPath.slice(1),
     },
   });
@@ -114,11 +184,11 @@ export default function account(fs) {
     let loginUser = JSON.parse(localStorage.getItem("fantaUser")).f;
     loginUser && setisLogin(true) && setloginname(loginUser);
     isLogin && loginUser == router.asPath.slice(1) && setisUser(true);
-    isLogin && qdata.user.follow.includes(loginUser) && setisAllow(true);
-  }, [isLogin, isAllow]);
+    debby.user.follow.includes(loginUser) && setisAllow(true);
+  }, [isLogin]);
   console.log(isAllow);
   return (
-    <div className="border bg-slate-50">
+    <div className="border min-h-screen bg-slate-50">
       <Header />
       <div className="container  w-1/2 mx-auto mt-8">
         <div className="flex">
@@ -128,6 +198,14 @@ export default function account(fs) {
               className="rounded-full"
               width="150"
               height="150"
+              onClick={handleAvtar}
+            />
+            <input
+              type="file"
+              className="hidden"
+              onChange={handleAvtarChg}
+              ref={prf}
+              name="profile"
             />
           </div>
           <div className="w-2/5">
@@ -173,8 +251,9 @@ export default function account(fs) {
                     className="ml-8 px-3 bg-white text-black border font-bold rounded-md"
                     onClick={(e) => {
                       e.preventDefault();
-                      setisAllow(false);
+
                       remfl(e, `${qdata.user.fname}`);
+                      setisAllow(false);
                     }}
                   >
                     unfollow{" "}
@@ -217,13 +296,13 @@ export default function account(fs) {
                 </span>{" "}
                 posts
               </p>
-              <p className="mr-9 text-sm ">
+              <p className="mr-9 text-sm " onClick={(e) => setisfoOpen(true)}>
                 <span className="font-semibold text-md">
-                  {qdata.user.follow.length}
+                  {debby.user.follow.length}
                 </span>{" "}
                 followers
               </p>
-              <p className="mr-9 text-sm ">
+              <p className="mr-9 text-sm " onClick={(e) => setisflOpen(true)}>
                 <span className="font-semibold text-md">
                   {qdata.user.following.length}
                 </span>{" "}
@@ -235,6 +314,12 @@ export default function account(fs) {
               The Official the big bang theory insta account youngsheldon.com
             </p>
           </div>
+          {(isAllow || isPostOpen) && isfoOpen && (
+            <FollowPage data={debby.user.follow} c={closeFo} />
+          )}
+          {(isAllow || isPostOpen) && isflOpen && (
+            <FollowingPage data={debby.user.following} c={closeFl} />
+          )}
         </div>
         {(isAllow || qdata.user.isopen || isUser) && (
           <div className="border-t-2 mt-14">

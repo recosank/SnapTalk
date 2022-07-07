@@ -20,10 +20,27 @@ const resolvers = {
       console.log(data.rows);
       return data.rows[0];
     },
+    lg: async (_, __, ctx) => {
+      console.log("in lg");
+      console.log(ctx.req.userId);
+      const data = await pool.query(
+        `SELECT * FROM fanuser WHERE fname = '${ctx.req.userId}';`
+      );
+      console.log(data.rows);
+      return data.rows[0];
+    },
     users: async (_, args, ctx) => {
       console.log("inusers");
       const data = await pool.query("SELECT * FROM fanuser;");
       console.log(data.rows[0]);
+      return data.rows;
+    },
+    searchUser: async (_, { subStr }, ctx) => {
+      console.log("insearch");
+      const data = await pool.query(
+        `SELECT * FROM fanuser WHERE fname LIKE '%${subStr}%';`
+      );
+      console.log(data.rows);
       return data.rows;
     },
     getFl: async (_, __, { userId }) => {
@@ -161,15 +178,73 @@ const resolvers = {
 
       return existedUser.rows[0];
     },
-    update_fuser: async (_, { isopen }, ctx) => {
+    update_fuser: async (_, { isopen, pname, fname }, ctx) => {
       console.log("in uPRofi");
       console.log(isopen);
-      const user_Id = ctx.userId;
+      const user_Id = ctx.req.userId;
+      console.log(user_Id);
+
+      if (fname != user_Id) {
+        const existedUser = await pool.query(
+          `SELECT fname FROM fanuser WHERE fname='${fname}';`
+        );
+        if (existedUser.rows.length > 0) {
+          console.log("alredy user");
+          return "user alredy";
+        }
+      }
       const data = await pool.query(
-        `UPDATE fanuser SET isopen = ${isopen} WHERE fname='${user_Id}' returning *;`
+        `UPDATE fanuser SET isopen = ${isopen},pname = '${pname}' ,fname = '${fname}' WHERE fname='${user_Id}' returning *;`
       );
       console.log(data);
+      const token = jwt.sign(
+        { name: data.rows[0].fname, _id: data.rows[0].fuid },
+        SECRET,
+        {
+          expiresIn: "8h",
+        }
+      );
+      ctx.res.setHeader(
+        "Set-Cookie",
+        cookie.serialize("token", token, {
+          maxAge: 60 * 60,
+          sameSite: "strict",
+          path: "/",
+          httpOnly: true,
+          secure: true,
+        })
+      );
       return data.rows[0];
+    },
+    chgPass: async (_, { oldPassword, confirmPassword, password }, context) => {
+      console.log("chgpass");
+      const user_Id = context.userId;
+      const existedUser = await pool.query(
+        `SELECT * FROM fanuser WHERE fname='${user_Id}';`
+      );
+      if (existedUser.rows.length === 0) {
+        console.log("no user");
+        return "no alredy";
+      }
+      const hasedPasswd = await bcrypt.compare(
+        oldPassword,
+        existedUser.rows[0].password
+      );
+
+      console.log(hasedPasswd);
+      if (!hasedPasswd) {
+        console.log("qrong pssws");
+        return "wrong auth";
+      }
+      if (password !== confirmPassword) {
+        return "password dosen't match";
+      }
+      const hasedNewPasswd = await bcrypt.hash(password, 12);
+      const user = await pool.query(
+        `UPDATE fanuser SET password = '${hasedNewPasswd}' WHERE fname = '${user_Id}' returning *;`
+      );
+      console.log(user);
+      return user.rows[0];
     },
     addfpost: async (_, { title }, context) => {
       console.log("hwew");
@@ -180,6 +255,15 @@ const resolvers = {
       );
       console.log(post.rows[0]);
       return post.rows[0];
+    },
+    addcomment: async (_, { postuid, content }, ctx) => {
+      console.log("in commnt");
+      const user_Id = ctx.userId;
+      const comment = await pool.query(
+        `INSERT INTO comment(postuid,user_name,content) VALUES ('${postuid}','${user_Id}','${content}') returning *;`
+      );
+      console.log(comment.rows[0]);
+      return comment.rows[0];
     },
     updateAddLike: async (_, { puid }, ctx) => {
       console.log("in up addLike post");
@@ -209,7 +293,7 @@ const resolvers = {
       //CREATE OR REPLACE FUNCTION addfl(l VARCHAR(50),o VARCHAR(50)) RETURNS text[] AS $$ UPDATE fanuser SET following = array_append(following,o) WHERE fname = l returning *; UPDATE fanuser SET follow = array_append(follow,l) WHERE fname = o returning follow $$ LANGUAGE SQL;
       const post = await pool.query(`SELECT addfl('${user_Id}','${fname}');`);
       console.log(post.rows[0]);
-      return "done";
+      return JSON.stringify(post.rows[0].addfl);
     },
     remfl: async (_, { fname }, context) => {
       console.log("following");
@@ -217,7 +301,7 @@ const resolvers = {
       //CREATE OR REPLACE FUNCTION remfl(l VARCHAR(50),o VARCHAR(50)) RETURNS text[] AS $$ UPDATE fanuser SET following = array_remove(following,o) WHERE fname = l returning *; UPDATE fanuser SET follow = array_remove(follow,l) WHERE fname = o returning follow $$ LANGUAGE SQL;
       const post = await pool.query(`SELECT remfl('${user_Id}','${fname}');`);
       console.log(post.rows[0]);
-      return post.rows[0].adddffflll;
+      return JSON.stringify(post.rows[0].remfl);
     },
     sendmessage: async (_, { receiver, content }) => {
       //, { userId, pubsub }

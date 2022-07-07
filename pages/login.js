@@ -42,7 +42,9 @@ const Login = () => {
   }
   if (data) {
     if (data.logfuser.fname === uInfo.fname) {
-      localStorage.setItem("fantaUser", uInfo.fname);
+      const fullName = "snowman";
+      const d = { f: uInfo.fname, p: fullName };
+      localStorage.setItem("fantaUser", JSON.stringify(d));
       router.push("/");
     }
   }

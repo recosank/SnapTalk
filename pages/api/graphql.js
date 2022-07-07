@@ -70,6 +70,14 @@ const apolloServer = new ApolloServer({
         console.log(u_id);
         req.userId = u_id.name;
         console.log("done ctx");
+        if (req.headers.referer === "http://localhost:3000/accounts/edit") {
+          const ctx = {
+            req: req,
+            res: res,
+          };
+
+          return ctx;
+        }
         //req.pubsub = pubbsubb;
         return req;
       }

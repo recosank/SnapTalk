@@ -3,12 +3,38 @@ import Image from "next/image";
 import instlogo from "../images/instlogo.png";
 import { useRouter } from "next/router";
 import profile from "../images/profile.jpg";
+import { gql } from "@apollo/client";
+import { useLazyQuery } from "@apollo/client";
+import UserSP from "./userSP";
+
+const Get_Su = gql`
+  query getsu($subStr: String!) {
+    searchUser(subStr: $subStr) {
+      fname
+      pname
+    }
+  }
+`;
 
 const Header = () => {
   const router = useRouter();
+  const [sUser, setsUser] = useState("");
+  const [openSearch, setopenSearch] = useState(false);
   const [isLogin, setisLogin] = useState(false);
   const [login_user, setlogin_user] = useState("");
   const [focu, setfocu] = useState("");
+  const [adfl, { loading: qloading, error: qerror, data: qdata }] =
+    useLazyQuery(Get_Su);
+  const handleSearch = () => {
+    if (sUser != "") {
+      setopenSearch(true);
+      adfl({
+        variables: { subStr: sUser },
+      });
+    } else {
+      setopenSearch(false);
+    }
+  };
 
   useEffect(() => {
     const loginUser = JSON.parse(localStorage.getItem("fantaUser"));
@@ -45,7 +71,26 @@ const Header = () => {
           placeholder="Search"
           className="bg-zinc-100 text-sm w-52 focus:outline-none "
           name="headSearch"
+          value={sUser}
+          onChange={(e) => {
+            e.preventDefault();
+            setsUser(e.target.value);
+          }}
+          onFocus={(e) => {
+            e.preventDefault();
+            setopenSearch(true);
+          }}
+          onKeyUp={handleSearch}
         />
+        {openSearch != "" && (
+          <div className="absolute  max-h-60 top-14 z-40 left-1/3 ml-28 w-1/6 bg-white overflow-scroll overscroll-y-contain">
+            {openSearch &&
+              qdata &&
+              qdata.searchUser.map((i, key) => {
+                return <UserSP key={key} data={i} />;
+              })}
+          </div>
+        )}
       </div>
       {isLogin ? (
         <div className="flex gap-5 items-center">
@@ -166,13 +211,3 @@ const Header = () => {
 };
 
 export default Header;
-//<div>
-//          <button
-//            className="p-2 text-md text-cyan-600 rounded-md ml-2"
-//            onClick={() => {
-//              router.push("signup");
-//            }}
-//          >
-//            Log Out
-//          </button>
-//        </div>
