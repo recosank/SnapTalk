@@ -65,6 +65,14 @@ const resolvers = {
       console.log(data.rows[0]);
       return data.rows;
     },
+    getcomment: async (_, { postuid }, { userId }) => {
+      console.log("all cmmnt");
+      const data = await pool.query(
+        `SELECT * FROM comment WHERE postuid = '${postuid}';`
+      );
+      console.log(data.rows);
+      return data.rows;
+    },
     getmessages: async (_, { receiver }, { userId }) => {
       console.log("in get message");
       console.log(receiver);

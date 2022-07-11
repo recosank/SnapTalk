@@ -6,6 +6,7 @@ import profile from "../images/profile.jpg";
 import { gql } from "@apollo/client";
 import { useLazyQuery } from "@apollo/client";
 import UserSP from "./userSP";
+import chat from "../images/chat.svg";
 
 const Get_Su = gql`
   query getsu($subStr: String!) {
@@ -93,38 +94,53 @@ const Header = () => {
         )}
       </div>
       {isLogin ? (
-        <div className="flex gap-5 items-center">
+        <div className="flex gap-5 items-center justify-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-7 w-7"
-            viewBox="0 0 20 20"
+            className="h-6 w-6"
+            viewBox="0 0 16 16"
             fill="none"
             stroke="currentColor"
             strokeWidth={1.2}
             onClick={(e) => router.push("/")}
           >
-            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+            <path d="M8,1L1,6v9h5v-4c0-1.105,0.895-2,2-2s2,0.895,2,2v4h5V6L8,1z"></path>{" "}
           </svg>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-7 w-7"
-            viewBox="0 0 25 25"
-            fill={`${focu === "home" ? "currentColor" : "none"}`}
-            stroke={`${focu === "home" ? "none" : "currentColor"}`}
-            strokeWidth={1.5}
+
+          <Image
+            src={chat}
+            width="37"
+            height="37"
+            className="text-black text-center"
             onClick={(e) => {
               e.preventDefault();
               setfocu("home");
               console.log(focu);
               router.push("/direct");
             }}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-            />
-          </svg>
+          />
+          {
+            // <svg
+            //  xmlns="http://www.w3.org/2000/svg"
+            //  className="h-7 w-7"
+            //  viewBox="0 0 25 25"
+            //  fill={`${focu === "home" ? "currentColor" : "none"}`}
+            //  stroke={`${focu === "home" ? "none" : "currentColor"}`}
+            //  strokeWidth={1.5}
+            //  onClick={(e) => {
+            //    e.preventDefault();
+            //    setfocu("home");
+            //    console.log(focu);
+            //    router.push("/direct");
+            //  }}
+            //>
+            //  <path
+            //    strokeLinecap="round"
+            //    strokeLinejoin="round"
+            //    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+            //  />
+            //</svg>
+          }
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className={`h-6 w-6 rounded-lg border-2 ${
@@ -147,6 +163,7 @@ const Header = () => {
               d="M12 4v16m8-8H4"
             />
           </svg>
+
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6  rounded-full p-0.5 border-2 border-black"

@@ -34,6 +34,7 @@ const typeDefs = gql`
     users: [User!]!
     posts(fname: String!): [Post!]!
     allposts: [Post!]!
+    getcomment(postuid: String!): [Comment!]!
     getFl: [String]!
     getFo: [String]!
     getmessages(receiver: String!): [Message]!

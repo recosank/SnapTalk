@@ -4,14 +4,17 @@ import Image from "next/image";
 import def from "../images/def.jpg";
 import Link from "next/link";
 import { gql } from "@apollo/client";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useState, useEffect } from "react";
+import { useApolloClient } from "@apollo/client";
 
 const update_addlike = gql`
   mutation update_post($puid: String) {
     updateAddLike(puid: $puid) {
       puid
       likes
+      user_name
+      title
     }
   }
 `;
@@ -23,7 +26,16 @@ const update_cmt = gql`
     }
   }
 `;
-
+const Get_FUser = gql`
+  query getfposts {
+    allposts {
+      title
+      puid
+      likes
+      user_name
+    }
+  }
+`;
 const update_remlike = gql`
   mutation update_post($puid: String) {
     updateRemLike(puid: $puid) {
@@ -32,12 +44,13 @@ const update_remlike = gql`
     }
   }
 `;
-const HPosts = ({ data }) => {
+const HPosts = ({ data, l }) => {
   const [logedin, setlogedin] = useState("");
   const likedata = data.likes.includes(`${logedin}`);
   const [isLiked, setisLiked] = useState(likedata);
   const [cmmnt, setcmmnt] = useState("");
-
+  const client = useApolloClient();
+  //  console.log(client);
   useEffect(() => {
     const l =
       typeof window !== "undefined"
@@ -46,22 +59,24 @@ const HPosts = ({ data }) => {
     setlogedin(l.f);
   }, [logedin, isLiked]);
   const [upCmt, { data: cd, loading: cl, error: ce }] = useMutation(update_cmt);
-  const [upPos, { data: md, loading: ml, error: me }] =
+  const [upPos, { loading: ml, error: me, data: md }] =
     useMutation(update_addlike);
-  if (md) {
-    console.log(md);
-  }
+  const { loading: gs, error: gds, data: gad } = useQuery(Get_FUser);
+  //console.log(client);
   const [upPost, { data: mmd, loading: mml, error: mme }] =
     useMutation(update_remlike);
-  const handleAddLk = (e) => {
+  const handleAddLk = async (e) => {
     e.preventDefault();
     setisLiked(true);
-    upPos({
+    await upPos({
       variables: {
         puid: data.puid,
       },
     });
   };
+  if (md) {
+    l(md);
+  }
   const handlecmmnt = (e) => {
     e.preventDefault();
     upCmt({

@@ -10,7 +10,9 @@ import profile from "../images/profile.jpg";
 import def from "../images/def.jpg";
 import { initializeApollo } from "../lib/apollo";
 import HPosts from "../components/posts";
+import { useApolloClient } from "@apollo/client";
 import { router } from "websocket";
+import { OverlappingFieldsCanBeMergedRule } from "graphql";
 
 const Get_FUser = gql`
   query getfposts {
@@ -26,7 +28,17 @@ const Get_FUser = gql`
     }
   }
 `;
-export default function Home() {
+const Get_pUser = gql`
+  query getfposts {
+    allposts {
+      title
+      puid
+      likes
+      user_name
+    }
+  }
+`;
+export default function Home(fs) {
   const router = useRouter();
   const [login_user, setlogin_user] = useState({});
   //const { data, error, loading } = useQuery(GET_PRODUCT_BY_ID, {     send query with var
@@ -41,7 +53,7 @@ export default function Home() {
     return <div>Error!</div>;
   }
   if (data) {
-    console.log(data);
+    //console.log(data);
   }
   useEffect(() => {
     const l =
@@ -50,7 +62,48 @@ export default function Home() {
         : "";
     setlogin_user(l);
   }, []);
+  const client = useApolloClient();
+  const addLike = (data) => {
+    const datat = client.readQuery({
+      query: Get_FUser,
+    });
+    console.log("cache data");
+    console.log(datat);
 
+    console.log(data);
+    const all = client.writeQuery({
+      query: Get_FUser,
+      data: {
+        allposts: datat.allposts.filter((i) => {
+          if (i.puid === data.updateAddLike.puid) {
+            console.log("here");
+            console.log(i);
+
+            i.likes = [...data.updateAddLike.likes];
+          }
+          return i;
+        }),
+        getFl: [...datat.getFl],
+        users: [...datat.users],
+      },
+    });
+    const datap = client.readQuery({
+      query: Get_pUser,
+    });
+    console.log(datap);
+  };
+  //console.log(client);
+  const debby = client.readQuery({
+    query: Get_FUser,
+    //variables: {
+    //  fname: router.asPath.slice(1),
+    //},
+  });
+  if (debby) {
+    console.log("debby");
+    //console.log(debby);
+    //console.log(fs);
+  }
   return (
     <div className="w-full bg-slate-50">
       <Header />
@@ -79,10 +132,10 @@ export default function Home() {
             </div>
           )}
           <div className="mt-5">
-            {data.allposts.map((post, key) => {
+            {debby.allposts.map((post, key) => {
               return (
                 <div key={key}>
-                  <HPosts data={post} />
+                  <HPosts data={post} l={addLike} />
                 </div>
               );
             })}

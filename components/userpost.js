@@ -3,9 +3,48 @@ import Image from "next/image";
 import def from "../images/def.jpg";
 import profile from "../images/profile.jpg";
 import Link from "next/link";
+import { gql } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
+import { useState, useEffect } from "react";
 
+const update_cmt = gql`
+  mutation update_cmt($content: String!, $postuid: String!) {
+    addcomment(content: $content, postuid: $postuid) {
+      user_name
+      content
+    }
+  }
+`;
+const Get_cmt = gql`
+  query getcmt($postuid: String!) {
+    getcomment(postuid: $postuid) {
+      user_name
+      content
+      cuid
+      postuid
+    }
+  }
+`;
 const Userpost = ({ data, l, c }) => {
-  console.log(data);
+  const [cmmnt, setcmmnt] = useState("");
+  const {
+    loading: qloading,
+    error: qerror,
+    data: qdata,
+  } = useQuery(Get_cmt, {
+    variables: { postuid: data.puid },
+  });
+  console.log(qdata);
+  const [upCmt, { data: cd, loading: cl, error: ce }] = useMutation(update_cmt);
+  const handlecmmnt = (e) => {
+    e.preventDefault();
+    upCmt({
+      variables: {
+        postuid: data.puid,
+        content: cmmnt,
+      },
+    });
+  };
   return (
     <div className="z-30 flex justify-center w-full py-8 h-full bg-black/50 absolute top-0 left-0 ">
       <svg
@@ -163,8 +202,18 @@ const Userpost = ({ data, l, c }) => {
                 placeholder="Add a comment..."
                 className="flex-1 pl-3 text-sm focus:outline-none resize-none"
                 rows="1"
+                value={cmmnt}
+                onChange={(e) => {
+                  e.preventDefault();
+                  setcmmnt(e.target.value);
+                }}
               />
-              <button className="text-blue-500 font-bold">Post</button>
+              <button
+                onClick={(e) => handlecmmnt(e)}
+                className="text-blue-500 font-bold"
+              >
+                Post
+              </button>
             </div>
           </div>
         </div>
