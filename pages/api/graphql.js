@@ -4,28 +4,12 @@ import typeDefs from "../../graphql/schema";
 import Cors from "micro-cors";
 import authg from "../../lib/auth";
 import Router from "next/router";
-import { makeExecutableSchema } from "@graphql-tools/schema";
-import { useServer } from "graphql-ws/lib/use/ws";
-import { Disposable } from "graphql-ws";
-import { WebSocketServer } from "ws";
-import { PubSub } from "graphql-subscriptions";
 
 const cors = Cors();
-//const pubsub = new PubSub();
-//let serverCleanup = Disposable | null;
-//const schema = makeExecutableSchema({ typeDefs, resolvers });
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
-  //schema,
   csrfPrevention: true,
-  //introspection: true,
-  //subscriptions: {
-  //  path: "/api/graphql",
-  //
-  //  onConnect: (tt) => console.log(tt),
-  //  onDisconnect: () => console.log("disconnected"),
-  //},
   context: ({ req, res }) => {
     console.log("in cxt");
 
@@ -37,20 +21,10 @@ const apolloServer = new ApolloServer({
 
       return res;
     } else {
-      //console.log(req.cookies);
       if (typeof window === "undefined") {
-        console.log("in ifffffff");
-
+        console.log("in if");
         console.log(req.headers);
         console.log(req.cookies);
-        //if (req.socket.server.ws) {
-        //  console.log("done ctx");
-        //  console.log(pubsub);
-        //  req.pubsub = pubsub;
-        //
-        //  return { p: pubsub, l: "lo" };
-        //}
-        //console.log("no ws");
         let token = "";
 
         if (!req.headers.authorization) {
@@ -63,9 +37,6 @@ const apolloServer = new ApolloServer({
               : req.cookies.token;
           console.log(token);
         }
-        //if (!token) {
-        //  Router.push("/signup");
-
         const u_id = authg(token);
         console.log(u_id);
         req.userId = u_id.name;
@@ -78,7 +49,6 @@ const apolloServer = new ApolloServer({
 
           return ctx;
         }
-        //req.pubsub = pubbsubb;
         return req;
       }
       console.log("out ssr");
@@ -90,55 +60,8 @@ const apolloServer = new ApolloServer({
       return req;
     }
   },
-  //  plugins: [
-  //    // Proper shutdown for the WebSocket server.
-  //    {
-  //      async serverWillStart() {
-  //        return {
-  //          async drainServer() {
-  //            await serverCleanup?.dispose();
-  //          },
-  //        };
-  //      },
-  //    },
-  //  ],
 });
 const startServer = apolloServer.start();
-//const getHandler = async () => {
-//  await startServer;
-//  return apolloServer.createHandler({
-//    path: "/api/graphql",
-//  });
-//};
-//const wsServer = new WebSocketServer({
-//  noServer: true,
-//});
-//
-//export default cors(async function handler(req, res) {
-//  if (req.method === "OPTIONS") {
-//    res.end();
-//    return false;
-//  }
-//  res.socket.server.ws ||= (() => {
-//    res.socket.server.on("upgrade", function (request, socket, head) {
-//      wsServer.handleUpgrade(request, socket, head, function (ws) {
-//        wsServer.emit("connection", ws);
-//      });
-//    });
-//    serverCleanup = useServer({ schema }, wsServer);
-//    return wsServer;
-//  })();
-//
-//  const h = await getHandler();
-//
-//  await h(req, res);
-//});
-//
-//export const config = {
-//  api: {
-//    bodyParser: false,
-//  },
-//};
 
 export default cors(async function handler(req, res) {
   if (req.method === "OPTIONS") {

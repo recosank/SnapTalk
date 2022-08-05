@@ -2,8 +2,6 @@ import { connectToDatabase } from "../lib/db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import cookie from "cookie";
-import { withFilter } from "graphql-subscriptions";
-//import pubsub from "../lib/pub";
 
 const { pool } = connectToDatabase();
 
@@ -311,40 +309,40 @@ const resolvers = {
       console.log(post.rows[0]);
       return JSON.stringify(post.rows[0].remfl);
     },
-    sendmessage: async (_, { receiver, content }) => {
-      //, { userId, pubsub }
-      console.log("in sendmessage");
-      //  const data = await pool.query(
-      //    `INSERT INTO message(content,sender,receiver) VALUES ('${content}','${userId}','${receiver}') returning *;`
-      //  );
-      //
-      //  console.log(data.rows);
-      //  pubsub.publish("NEW_MESSAGE", { newMessage: data.rows[0] });
-      //  return data.rows[0];
-    },
+    //sendmessage: async (_, { receiver, content }) => {
+    //, { userId, pubsub }
+    //console.log("in sendmessage");
+    //  const data = await pool.query(
+    //    `INSERT INTO message(content,sender,receiver) VALUES ('${content}','${userId}','${receiver}') returning *;`
+    //  );
+    //
+    //  console.log(data.rows);
+    //  pubsub.publish("NEW_MESSAGE", { newMessage: data.rows[0] });
+    //  return data.rows[0];
+    //},
   },
-  Subscription: {
-    newMessage: {
-      subscribe: async (ctx) => {
-        //withFilter((_, __, req) => {
-        //console.log(pubsub);
-        console.log("checj ut iyt");
-        //console.log(arg);
-        console.log(ctx);
-
-        //return "yes";
-        //  if (!userId) throw new AuthenticationError("Unauthenticated");
-        //return pubsub.asyncIterator("NEW_MESSAGE");
-        //},
-        //({ newMessage }, _, { userId }) => {
-        //  if (newMessage.sender === userId || newMessage.receiver === userId) {
-        //    return true;
-        //  }
-        //
-        //  return false;
-      },
-    },
-  },
+  //Subscription: {
+  //  newMessage: {
+  //    subscribe: async (ctx) => {
+  //      //withFilter((_, __, req) => {
+  //      //console.log(pubsub);
+  //      console.log("checj ut iyt");
+  //      //console.log(arg);
+  //      console.log(ctx);
+  //
+  //      //return "yes";
+  //      //  if (!userId) throw new AuthenticationError("Unauthenticated");
+  //      //return pubsub.asyncIterator("NEW_MESSAGE");
+  //      //},
+  //      //({ newMessage }, _, { userId }) => {
+  //      //  if (newMessage.sender === userId || newMessage.receiver === userId) {
+  //      //    return true;
+  //      //  }
+  //      //
+  //      //  return false;
+  //    },
+  //  },
+  //},
 };
 
 export default resolvers;

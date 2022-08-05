@@ -12,7 +12,6 @@ import { initializeApollo } from "../lib/apollo";
 import HPosts from "../components/posts";
 import { useApolloClient } from "@apollo/client";
 import { router } from "websocket";
-import { OverlappingFieldsCanBeMergedRule } from "graphql";
 
 const Get_FUser = gql`
   query getfposts {

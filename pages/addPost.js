@@ -5,16 +5,6 @@ import useSWR, { SWRConfig, useSWRConfig } from "swr";
 import axios from "axios";
 
 import request from "graphql-request";
-//const MESSAGE_SUBSCRIPTION = gql`
-//  subscription OnMessageAdded($muid: String) {
-//    newMessage(muid: $muid) {
-//      muid
-//      sender
-//      receiver
-//      content
-//    }
-//  }
-//`;
 
 const Add_FPost = gql`
   mutation addFPost($title: String!) {
