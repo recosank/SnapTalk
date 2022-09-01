@@ -1,13 +1,11 @@
-import React from "react";
-import profile from "../images/profile.jpg";
-import Image from "next/image";
-import def from "../images/def.jpg";
-import Link from "next/link";
+import React, { useState, useEffect } from "react";
+import { useApolloClient, useMutation, useQuery } from "@apollo/client";
 import { gql } from "@apollo/client";
-import { useMutation, useQuery } from "@apollo/client";
-import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import profile from "../images/profile.jpg";
+import def from "../images/def.jpg";
 import Userpost from "./userpost";
-import { useApolloClient } from "@apollo/client";
 
 const update_addlike = gql`
   mutation update_post($puid: String) {
@@ -53,11 +51,11 @@ const HPosts = ({ data, l }) => {
   const [isPostOpen, setisPostOpen] = useState(false);
   const client = useApolloClient();
   useEffect(() => {
-    const l =
+    const local =
       typeof window !== "undefined"
         ? JSON.parse(localStorage.getItem("fantaUser"))
         : "";
-    setlogedin(l.f);
+    setlogedin(local.f);
   }, [logedin, isLiked]);
   const [upCmt, { data: cd, loading: cl, error: ce }] = useMutation(update_cmt);
   console.log(cd);

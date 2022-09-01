@@ -3,7 +3,6 @@ import React from "react";
 import profile from "../images/profile.jpg";
 
 const UserSP = ({ data }) => {
-  console.log(data);
   return (
     <div className="flex p-2 gap-2">
       <Image src={profile} width="40" height="40" className="rounded-full" />

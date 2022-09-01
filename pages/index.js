@@ -22,7 +22,6 @@ const Get_FUser = gql`
       title
       puid
       likes
-
       user_name
     }
   }
@@ -45,7 +44,16 @@ export default function Home(fs) {
   //});
   const { loading, error, data } = useQuery(Get_FUser);
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div class="flex justify-center h-screen items-center">
+        <div
+          class="spinner-border animate-spin border-black inline-block w-8 h-8 border-4 rounded-full"
+          role="status"
+        >
+          <span class="visually-hidden"></span>
+        </div>
+      </div>
+    );
   }
   if (error) {
     console.error(error);
@@ -55,11 +63,11 @@ export default function Home(fs) {
     console.log(data);
   }
   useEffect(() => {
-    const l =
+    const local =
       typeof window !== "undefined"
         ? JSON.parse(localStorage.getItem("fantaUser"))
         : "";
-    setlogin_user(l);
+    setlogin_user(local);
   }, []);
   const client = useApolloClient();
   const addLike = (data) => {

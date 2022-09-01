@@ -1,12 +1,10 @@
-import React from "react";
-import Header from "../../components/header";
+import React, { useState } from "react";
 import { gql } from "@apollo/client";
 import { useQuery, useMutation } from "@apollo/client";
-import { useState } from "react";
-import profile from "../../images/profile.jpg";
-import Image from "next/image";
-import { useEffect } from "react";
 import { useRouter } from "next/router";
+import Header from "../../components/header";
+import Image from "next/image";
+import profile from "../../images/profile.jpg";
 
 const update_profile = gql`
   mutation update_p($isopen: Boolean!, $pname: String!, $fname: String!) {
@@ -34,7 +32,6 @@ const EditProfile = () => {
     pname: qdata ? qdata.lg.pname : "",
   };
   const [uInfo, setuInfo] = useState(init);
-
   const [isOpen, setisOpen] = useState(false);
   const chgUserData = (e) => {
     e.preventDefault();
@@ -45,7 +42,6 @@ const EditProfile = () => {
 
   const handleUp = (e) => {
     e.preventDefault();
-
     uppPro({
       variables: {
         isopen: isOpen,
@@ -64,27 +60,18 @@ const EditProfile = () => {
             Edit Profile
           </button>
           <button
-            onClick={(e) => router.push("/chgPass")}
+            onClick={(e) => router.push("chgpass")}
             className="pl-7 text-left py-4 font-normal  w-full"
           >
             Change Password
-          </button>{" "}
-          <button className="pl-7 text-left py-4 font-normal  w-full">
-            Apps and Websites
-          </button>{" "}
-          <button className="pl-7 text-left py-4 font-normal  w-full">
-            Email notifications
-          </button>{" "}
-          <button className="pl-7 text-left py-4 font-normal  w-full">
-            Privacy and Security{" "}
           </button>{" "}
           <button className="pl-7 text-left py-4 font-normal  w-full">
             Help
           </button>
         </div>
         <div className="w-4/5 border text-center">
-          <div className="space-y-4 mt-16">
-            <div className="flex justify-center items-center gap-9">
+          <div className="ml-40 space-y-4 mt-16">
+            <div className="flex justify-start  items-center gap-9">
               <Image
                 src={profile}
                 className="rounded-full"
@@ -94,11 +81,10 @@ const EditProfile = () => {
               />
               <div className="w-1/2 text-left">
                 <p className="text-lg">{qdata && qdata.fname}</p>
-
                 <p className="text-sm text-sky-500">change profile photo</p>
               </div>
             </div>
-            <div className="flex justify-center gap-9 p-2">
+            <div className="flex justify-start space-x-20 p-2">
               <label className="font-medium mt-1 text-right">Name</label>
               <div className="w-1/2 text-left space-y-3">
                 <input
@@ -108,7 +94,6 @@ const EditProfile = () => {
                   onChange={chgUserData}
                   name="pname"
                 />
-
                 <p className="text-xs text-slate-400">
                   Help people discover your account by using the name you're
                   known by: either your full name, nickname, or business name.
@@ -118,8 +103,8 @@ const EditProfile = () => {
                 </p>
               </div>
             </div>
-            <div className="flex justify-center text-right gap-9 p-2">
-              <label className="font-medium mt-1">Username</label>
+            <div className="flex justify-start space-x-12 p-2">
+              <label className="font-medium mt-1 text-right">Username</label>
               <div className="w-1/2 text-left space-y-3">
                 <input
                   type="text"
@@ -128,7 +113,6 @@ const EditProfile = () => {
                   onChange={chgUserData}
                   name="fname"
                 />
-
                 <p className="text-xs text-slate-400">
                   In most cases, you'll be able to change your username back to
                   reco_0v0 for another 14 days.
@@ -136,24 +120,23 @@ const EditProfile = () => {
                 </p>
               </div>
             </div>
-            <div className="flex justify-center gap-9 p-2">
+            <div className="flex justify-start space-x-16 p-2">
               <label className="font-medium mt-1">Website</label>
-
               <input
                 type="text"
                 className="border-gray-200 border rounded-sm p-1 pl-3"
                 placeholder="Website"
               />
             </div>
-            <div className="flex justify-center text-right gap-9 p-2">
+            <div className="flex justify-start text-right space-x-24 p-2">
               <label className="font-medium mt-1">Bio</label>
-
               <textarea
                 type="text"
                 className="border-gray-200 border rounded-sm p-1 pl-3"
+                style={{ resize: "none" }}
               />
             </div>
-            <div className="w-1/2 mx-64 text-left">
+            <div className="w-1/2 ml-32 text-start">
               <p className="text-sm text-slate-400 font-medium">
                 Personal information
               </p>
@@ -163,43 +146,33 @@ const EditProfile = () => {
                 your public profile..
               </p>
             </div>
-            <div className="flex justify-center gap-9 p-2">
+            <div className="flex justify-start space-x-20 p-2">
               <label className="font-medium mt-1">Email</label>
-
               <input
                 type="text"
                 className="border-gray-200 border rounded-sm p-1 pl-3"
                 placeholder="Website"
               />
             </div>
-            <div className="flex justify-center gap-9 p-2">
+            <div className="flex justify-start space-x-3 p-2">
               <label className="font-medium mt-1">Phone number</label>
-
               <input
                 type="text"
                 className="border-gray-200 border rounded-sm p-1 pl-3"
                 placeholder="Website"
               />
             </div>
-            <div className="flex justify-center gap-9 p-2">
+            <div className="flex justify-start space-x-16 p-2">
               <label className="font-medium mt-1">Gender</label>
-
               <input
                 type="text"
                 className="border-gray-200 border rounded-sm p-1 pl-3"
                 placeholder="Gender"
               />
             </div>
-            <label value="isOpen" name="isOpen">
-              <input
-                type="checkbox"
-                defaultChecked={isOpen}
-                onChange={(e) => setisOpen((p) => !p)}
-              />
-            </label>
             <button
               onClick={(e) => handleUp(e)}
-              className="px-3 py-1.5 font-medium rounded-sm bg-sky-500 text-white text-center text-sm"
+              className="px-3 py-1.5 font-medium rounded-md bg-sky-500 text-white text-center text-sm"
             >
               Submit
             </button>
@@ -211,6 +184,3 @@ const EditProfile = () => {
 };
 
 export default EditProfile;
-//
-//          <label>private account</label>
-//          <button >submit</button>

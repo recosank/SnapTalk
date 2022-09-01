@@ -3,7 +3,6 @@ import resolvers from "../../graphql/resolvers";
 import typeDefs from "../../graphql/schema";
 import Cors from "micro-cors";
 import authg from "../../lib/auth";
-import Router from "next/router";
 
 const cors = Cors();
 const apolloServer = new ApolloServer({

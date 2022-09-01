@@ -38,8 +38,7 @@ const Post = () => {
     e.preventDefault();
     setpInfo({ ...pInfo, [e.target.name]: e.target.value });
   };
-  const [addpost, { data: md, loading: ml, error: me }] =
-    useMutation(Add_FPost);
+  const [addpost, { data, loading, error }] = useMutation(Add_FPost);
   const handleAddPost = (e) => {
     e.preventDefault();
     addpost({
@@ -47,12 +46,30 @@ const Post = () => {
     });
   };
 
+  if (loading) {
+    return (
+      <div class="flex justify-center h-screen items-center">
+        <div
+          class="spinner-border animate-spin border-black inline-block w-8 h-8 border-4 rounded-full"
+          role="status"
+        >
+          <span class="visually-hidden"></span>
+        </div>
+      </div>
+    );
+  }
+  if (data) {
+    router.push("/");
+  }
+  if (error) {
+    console.log(error);
+  }
   return (
     <div className="h-screen bg-slate-50">
       <Header />
-      <div className="container flex justify-around h-4/5 mx-auto items-center">
+      <div className="flex justify-around w-2/3  h-4/5 mx-auto items-center">
         <div
-          className="w-1/3 border-2 flex items-center rounded-xl justify-center border-dashed border-cyan-300 bg-white h-4/5"
+          className="w-2/5 border-2 flex items-center rounded-xl justify-center border-dashed border-cyan-300 bg-white h-4/5"
           onClick={handleRef}
         >
           {source ? (
@@ -82,16 +99,17 @@ const Post = () => {
         <form
           action="/api/adduser"
           encType="multipart/form-data"
-          className="flex flex-col  w-1/4  space-y-6"
+          className="flex flex-col space-y-6"
+          style={{ width: "30%" }}
           method="POST"
           onSubmit={handleAddPost}
         >
           <textarea
             type="text"
             rows={6}
-            cols={20}
+            cols={25}
             placeholder="Caption"
-            className="rounded-xl p-2 text-sm"
+            className="rounded-xl border-2  p-2 text-sm"
             style={{ resize: "none" }}
             value={pInfo.title}
             onChange={(e) => handlePData(e)}
@@ -110,7 +128,7 @@ const Post = () => {
           <input
             type="text"
             placeholder="Tags"
-            className="rounded-full p-2 text-sm"
+            className="rounded-full p-2 text-sm border-2"
             name="tags"
           />
           <button

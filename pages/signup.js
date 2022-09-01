@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { gql, useMutation } from "@apollo/client";
-import instlogo from "../images/instlogo.png";
 import Image from "next/image";
 import bfb from "../images/bfb.png";
 import styles from "../styles/Home.module.css";
+import fan from "../images/fan.jpg";
 
 const Add_FUser = gql`
   mutation addFUser(
@@ -53,7 +53,16 @@ const Signup = () => {
   };
 
   if (loading) {
-    return <p>loading</p>;
+    return (
+      <div class="flex justify-center h-screen items-center">
+        <div
+          class="spinner-border animate-spin border-black inline-block w-8 h-8 border-4 rounded-full"
+          role="status"
+        >
+          <span class="visually-hidden"></span>
+        </div>
+      </div>
+    );
   }
   if (data) {
     if (data.addfuser.fname === uInfo.fname) {
@@ -66,18 +75,16 @@ const Signup = () => {
     console.log(error);
   }
   return (
-    <div className="flex justify-center flex-col items-center bg-zinc-50 h-screen">
-      <div className={`border-2 bg-white ${styles.signupCard}`}>
-        <div className="text-center my-5">
+    <div className="flex justify-center flex-col items-end bg-zinc-50 h-screen">
+      <Image src={fan} layout="fill" className="z-10" />
+      <div className={`bg-black z-30 mr-56 ${styles.signupCard}`}>
+        <div className="text-center my-6">
           <p
-            className="font-semibold antialiased tracking-wider text-2xl"
+            className="font-semibold antialiased text-sky-400 tracking-wider text-2xl"
             onClick={(e) => router.push("/")}
           >
             ƒɑղԵɑցɾɑʍ
           </p>
-          {
-            //<Image src={instlogo} width="190" height="70" className="m-3" />
-          }
         </div>
         <p className="text-center text-md tracking-wide px-10 text-zinc-500 font-bold">
           Sign up to see photos and videos from your friends.
@@ -169,12 +176,12 @@ const Signup = () => {
         </form>
       </div>
       <div
-        className={`mt-3 p-5 border-2 bg-white text-center ${styles.signupCard}`}
+        className={`p-5 border-t border-white z-40 bg-black mr-56 text-center ${styles.signupCard}`}
       >
-        <p>
-          Have an account?{" "}
+        <p className="text-white">
+          Have an account?
           <span
-            className="text-blue-900"
+            className="text-lime-400 pl-2"
             onClick={(e) => router.push("/login")}
           >
             Login

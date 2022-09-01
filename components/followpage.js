@@ -10,7 +10,7 @@ const Get_FUser = gql`
   }
 `;
 
-const FollowPage = ({ data, c }) => {
+const FollowPage = ({ data, close }) => {
   const { loading, error, data: qd } = useQuery(Get_FUser);
   if (loading) {
     return <div>Loading...</div>;
@@ -34,7 +34,7 @@ const FollowPage = ({ data, c }) => {
             className="h-6 w-6"
             viewBox="0 0 20 20"
             fill="currentColor"
-            onClick={c}
+            onClick={close}
           >
             <path
               fillRule="evenodd"
@@ -44,10 +44,10 @@ const FollowPage = ({ data, c }) => {
           </svg>
         </div>
         <div className="overflow-scroll h-5/6 overscroll-y-contain">
-          {data.map((i, k) => {
+          {data.map((val, key) => {
             return (
               <div
-                key={k}
+                key={key}
                 className="flex px-3 py-1 items-center"
                 onClick={(e) => {}}
               >
@@ -58,18 +58,20 @@ const FollowPage = ({ data, c }) => {
                   className="rounded-full"
                 />
                 <div className="grow mx-3">
-                  <p className="text-xs text-black tracking-wide">{i}</p>
-                  <p className="text-xs text-gray-400 mt-0.2">{i}</p>
+                  <p className="text-xs text-black tracking-wide">{val}</p>
+                  <p className="text-xs text-gray-400 mt-0.2">{val}</p>
                 </div>
-                {qd.getFo.includes(i) ? (
-                  <button className="text-xs border px-2 rounded-md p-1">
-                    Remove
-                  </button>
-                ) : (
-                  <button className="text-xs border px-2 rounded-md p-1">
-                    Follow
-                  </button>
-                )}
+                {
+                  //  qd.getFo.includes(val) ? (
+                  //  <button className="text-xs border px-2 rounded-md p-1">
+                  //    Remove
+                  //  </button>
+                  //) : (
+                  //  <button className="text-xs border px-2 rounded-md p-1">
+                  //    Follow
+                  //  </button>
+                  //)
+                }
               </div>
             );
           })}

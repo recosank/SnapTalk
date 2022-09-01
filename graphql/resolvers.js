@@ -5,8 +5,7 @@ import cookie from "cookie";
 
 const { pool } = connectToDatabase();
 
-const SECRET =
-  "asjkdfa5s4df658ar64f3a54f5425253456544@#%@%^%$^!#$%@#zbsdfbsdfbdsafgb3847tw4y8hgf";
+const SECRET = process.env.JWT_SECRET;
 
 const resolvers = {
   Query: {

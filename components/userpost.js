@@ -1,11 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { gql } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import Image from "next/image";
 import def from "../images/def.jpg";
 import profile from "../images/profile.jpg";
 import Link from "next/link";
-import { gql } from "@apollo/client";
-import { useMutation, useQuery } from "@apollo/client";
-import { useState, useEffect } from "react";
 
 const update_cmt = gql`
   mutation update_cmt($content: String!, $postuid: String!) {
@@ -21,7 +20,6 @@ const Get_cmt = gql`
   }
 `;
 const Userpost = ({ data, l, c }) => {
-  console.log("user post");
   const [cmmnt, setcmmnt] = useState("");
   const {
     loading: qloading,

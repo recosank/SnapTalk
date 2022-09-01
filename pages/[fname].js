@@ -85,7 +85,16 @@ export default function account(fs) {
     variables: { fname: router.asPath.slice(1) },
   });
   if (qloading) {
-    return <div>Loading...</div>;
+    return (
+      <div class="flex justify-center h-screen items-center">
+        <div
+          class="spinner-border animate-spin border-black inline-block w-8 h-8 border-4 rounded-full"
+          role="status"
+        >
+          <span class="visually-hidden"></span>
+        </div>
+      </div>
+    );
   }
   if (qerror) {
     console.error(qerror);
@@ -310,10 +319,10 @@ export default function account(fs) {
             </p>
           </div>
           {(isAllow || isPostOpen) && isfoOpen && (
-            <FollowPage data={debby.user.follow} c={closeFo} />
+            <FollowPage data={debby.user.follow} close={closeFo} />
           )}
           {(isAllow || isPostOpen) && isflOpen && (
-            <FollowingPage data={debby.user.following} c={closeFl} />
+            <FollowingPage data={debby.user.following} close={closeFl} />
           )}
         </div>
         {(isAllow || qdata.user.isopen || isUser) && (
@@ -390,9 +399,9 @@ export const getServerSideProps = async (ctx) => {
   }
 
   return {
-    redirect: {
-      destination: "/signup",
-      permanent: false,
-    },
+    //redirect: {
+    //  destination: "/signup",
+    //  permanent: false,
+    //},
   };
 };

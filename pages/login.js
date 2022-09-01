@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { gql, useMutation } from "@apollo/client";
-import instlogo from "../images/instlogo.png";
 import Image from "next/image";
 import bfb from "../images/bfb.png";
 import styles from "../styles/Home.module.css";
+import fan from "../images/fan.jpg";
 
 const Log_FUser = gql`
   mutation logFUser($fname: String!, $password: String!) {
@@ -15,12 +15,12 @@ const Log_FUser = gql`
 `;
 
 const Login = () => {
+  const router = useRouter();
   const init = {
     fname: "",
     password: "",
   };
   const [uInfo, setuInfo] = useState(init);
-  const router = useRouter();
 
   const chgUserData = (e) => {
     e.preventDefault();
@@ -38,7 +38,16 @@ const Login = () => {
   };
 
   if (loading) {
-    return <p>loading</p>;
+    return (
+      <div class="flex justify-center h-screen items-center">
+        <div
+          class="spinner-border animate-spin border-black inline-block w-8 h-8 border-4 rounded-full"
+          role="status"
+        >
+          <span class="visually-hidden"></span>
+        </div>
+      </div>
+    );
   }
   if (data) {
     if (data.logfuser.fname === uInfo.fname) {
@@ -52,10 +61,16 @@ const Login = () => {
     console.log(error);
   }
   return (
-    <div className="flex justify-center flex-col items-center bg-zinc-50 h-screen">
-      <div className={`border-2 bg-white ${styles.signupCard}`}>
-        <div className="text-center mt-10">
-          <Image src={instlogo} width="190" height="70" className="m-3" />
+    <div className="flex justify-center flex-col items-end bg-zinc-50 h-screen">
+      <Image src={fan} layout="fill" className="z-10" />
+      <div className={`bg-black z-30 mr-56 ${styles.signupCard}`}>
+        <div className="text-center my-10">
+          <p
+            className="font-semibold antialiased tracking-wider text-sky-400 text-2xl"
+            onClick={(e) => router.push("/")}
+          >
+            ƒɑղԵɑցɾɑʍ
+          </p>
         </div>
         <form
           encType="multipart/form-data"
@@ -96,21 +111,21 @@ const Login = () => {
         <div className={`${styles.divider} mx-7 mt-5 text-sm text-zinc-500 `}>
           OR
         </div>
-        <button className="w-4/5 flex p-2 justify-center gap-2 mt-4 ml-8  text-blue-700 font-bold text-sm">
+        <button className="w-4/5 flex p-2 justify-center gap-2 mt-4 ml-8  text-white font-bold text-sm">
           <Image src={bfb} width="20" height="15" />
           Log in with Facebook
         </button>
-        <button className="text-xs text-blue-700 ml-32 my-4">
+        <button className="text-xs text-lime-400 ml-32 my-4">
           Forget password
         </button>
       </div>
       <div
-        className={`mt-3 p-5 border-2 text-sm bg-white text-center ${styles.signupCard}`}
+        className={`p-5 border-t border-white z-40 bg-black mr-56 text-white text-center ${styles.signupCard}`}
       >
         <p>
           Don't have an account?{" "}
           <span
-            className="text-blue-900"
+            className="text-lime-400 ml-2"
             onClick={(e) => router.push("/signup")}
           >
             Sign up
