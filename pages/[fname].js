@@ -77,10 +77,6 @@ export default function account(fs) {
   const handleAvtar = () => {
     prf.current.click();
   };
-
-  //console.log("swr data");
-  //console.log(data);
-  //console.log(error);
   const {
     loading: qloading,
     error: qerror,
@@ -245,7 +241,7 @@ export default function account(fs) {
                     className="ml-10 px-3 bg-white text-black border font-bold rounded-md"
                     onClick={(e) => router.push(`direct/${router.query.fname}`)}
                   >
-                    Message{" "}
+                    Message
                   </button>
                   <button
                     className="ml-8 px-3 bg-white text-black border font-bold rounded-md"
@@ -256,7 +252,7 @@ export default function account(fs) {
                       setisAllow(false);
                     }}
                   >
-                    unfollow{" "}
+                    unfollow
                   </button>
                 </>
               ) : !qdata.user.isopen ? (
@@ -290,22 +286,21 @@ export default function account(fs) {
             </div>
             <div className="flex py-4 text-center">
               <p className="mr-9 text-sm">
-                {" "}
-                <span className="font-semibold text-md">
+                <span className="font-semibold text-md mr-1">
                   {qdata.posts.length}
-                </span>{" "}
+                </span>
                 posts
               </p>
               <p className="mr-9 text-sm " onClick={(e) => setisfoOpen(true)}>
-                <span className="font-semibold text-md">
+                <span className="font-semibold text-md mr-1">
                   {debby.user.follow.length}
-                </span>{" "}
+                </span>
                 followers
               </p>
               <p className="mr-9 text-sm " onClick={(e) => setisflOpen(true)}>
-                <span className="font-semibold text-md">
+                <span className="font-semibold text-md mr-1">
                   {qdata.user.following.length}
-                </span>{" "}
+                </span>
                 following
               </p>
             </div>

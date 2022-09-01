@@ -11,7 +11,6 @@ import def from "../images/def.jpg";
 import { initializeApollo } from "../lib/apollo";
 import HPosts from "../components/posts";
 import { useApolloClient } from "@apollo/client";
-import { router } from "websocket";
 
 const Get_FUser = gql`
   query getfposts {
@@ -23,6 +22,7 @@ const Get_FUser = gql`
       title
       puid
       likes
+
       user_name
     }
   }
@@ -52,7 +52,7 @@ export default function Home(fs) {
     return <div>Error!</div>;
   }
   if (data) {
-    //console.log(data);
+    console.log(data);
   }
   useEffect(() => {
     const l =
@@ -69,7 +69,6 @@ export default function Home(fs) {
     console.log("cache data");
     console.log(datat);
 
-    console.log(data);
     const all = client.writeQuery({
       query: Get_FUser,
       data: {
@@ -91,7 +90,7 @@ export default function Home(fs) {
     });
     console.log(datap);
   };
-  //console.log(client);
+  console.log(client);
   const debby = client.readQuery({
     query: Get_FUser,
     //variables: {
@@ -103,6 +102,7 @@ export default function Home(fs) {
     //console.log(debby);
     //console.log(fs);
   }
+
   return (
     <div className="w-full bg-slate-50">
       <Header />
@@ -197,7 +197,6 @@ export const getServerSideProps = async (ctx) => {
       //}
     }
   }
-  console.log("no cokkie");
   return {
     redirect: {
       destination: "/signup",

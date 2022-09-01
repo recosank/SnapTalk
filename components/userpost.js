@@ -10,22 +10,18 @@ import { useState, useEffect } from "react";
 const update_cmt = gql`
   mutation update_cmt($content: String!, $postuid: String!) {
     addcomment(content: $content, postuid: $postuid) {
-      user_name
+      user
       content
     }
   }
 `;
 const Get_cmt = gql`
   query getcmt($postuid: String!) {
-    getcomment(postuid: $postuid) {
-      user_name
-      content
-      cuid
-      postuid
-    }
+    getcomment(postuid: $postuid)
   }
 `;
 const Userpost = ({ data, l, c }) => {
+  console.log("user post");
   const [cmmnt, setcmmnt] = useState("");
   const {
     loading: qloading,
@@ -34,7 +30,7 @@ const Userpost = ({ data, l, c }) => {
   } = useQuery(Get_cmt, {
     variables: { postuid: data.puid },
   });
-  console.log(qdata);
+  let allCommnt = qdata && JSON.parse(qdata.getcomment);
   const [upCmt, { data: cd, loading: cl, error: ce }] = useMutation(update_cmt);
   const handlecmmnt = (e) => {
     e.preventDefault();
@@ -45,8 +41,9 @@ const Userpost = ({ data, l, c }) => {
       },
     });
   };
+
   return (
-    <div className="z-30 flex justify-center w-full py-8 h-full bg-black/50 absolute top-0 left-0 ">
+    <div className="z-30 flex justify-center w-full overflow-hidden overscroll-none py-8 h-screen bg-black/50 absolute top-0 left-0 inset-0 ">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         className="h-7 w-7 right-2 top-2 absolute"
@@ -65,12 +62,12 @@ const Userpost = ({ data, l, c }) => {
           <Image src={def} className="" width="100" height="50" layout="fill" />
         </div>
         <div className="w-2/5 flex flex-col">
-          <div className="flex mb-2  justify-between px-3 py-1 rounded-lg items-center">
-            <div className="flex gap-2 items-center mt-1.5">
+          <div className="flex mb-2 justify-between px-3 py-1 rounded-lg items-center">
+            <div className="flex gap-2  items-center mt-1.5">
               <Image
                 src={profile}
-                width="37"
-                height="37"
+                width="38"
+                height="38"
                 className="rounded-full"
               />
               <Link href={`${data.user_name}`}>
@@ -87,16 +84,39 @@ const Userpost = ({ data, l, c }) => {
               <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
             </svg>
           </div>
-          <div className="grow">
+          <div className="grow border-t">
             <div className="flex items-center gap-2 mt-2 px-4 p-2">
               <Image
                 src={profile}
-                width="37"
-                height="37"
+                width="38"
+                height="38"
                 className="rounded-full"
               />
               <p className="font-bold">{data.user_name}</p>
               <p>{data.title}</p>
+            </div>
+            <div
+              className="overflow-scroll overscroll-contain"
+              style={{ height: "37rem" }}
+            >
+              {allCommnt &&
+                allCommnt.map((val, ind) => {
+                  return (
+                    <div
+                      key={ind}
+                      className="flex items-center gap-2 mt-2 px-4 p-2"
+                    >
+                      <Image
+                        src={profile}
+                        width="35"
+                        height="35"
+                        className="rounded-full"
+                      />
+                      <p className="font-bold">{val.commt.user_Id}</p>
+                      <p>{val.commt.content}</p>
+                    </div>
+                  );
+                })}
             </div>
           </div>
           <div className="">

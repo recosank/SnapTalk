@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import instlogo from "../images/instlogo.png";
 import { useRouter } from "next/router";
 import profile from "../images/profile.jpg";
 import { gql } from "@apollo/client";
@@ -46,12 +45,12 @@ const Header = () => {
   }, [isLogin]);
   return (
     <div className="flex justify-center gap-56 bg-white align-center items-center border shadow-xs ">
-      <Image
-        src={instlogo}
-        width="110"
-        height="40"
+      <p
+        className="font-semibold antialiased text-xl cursor-pointer"
         onClick={(e) => router.push("/")}
-      />
+      >
+        ƒɑղԵɑցɾɑʍ
+      </p>
       <div className="flex border h-9 align-center items-center gap-2 p-3 my-3 rounded-lg bg-zinc-100">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -119,28 +118,6 @@ const Header = () => {
               router.push("/direct");
             }}
           />
-          {
-            // <svg
-            //  xmlns="http://www.w3.org/2000/svg"
-            //  className="h-7 w-7"
-            //  viewBox="0 0 25 25"
-            //  fill={`${focu === "home" ? "currentColor" : "none"}`}
-            //  stroke={`${focu === "home" ? "none" : "currentColor"}`}
-            //  strokeWidth={1.5}
-            //  onClick={(e) => {
-            //    e.preventDefault();
-            //    setfocu("home");
-            //    console.log(focu);
-            //    router.push("/direct");
-            //  }}
-            //>
-            //  <path
-            //    strokeLinecap="round"
-            //    strokeLinejoin="round"
-            //    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-            //  />
-            //</svg>
-          }
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className={`h-6 w-6 rounded-lg border-2 ${
@@ -164,26 +141,6 @@ const Header = () => {
             />
           </svg>
 
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6  rounded-full p-0.5 border-2 border-black"
-            fill="none"
-            fontSize="xs"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-          </svg>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-7 w-7"

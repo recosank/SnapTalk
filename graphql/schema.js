@@ -1,4 +1,11 @@
 import { gql } from "apollo-server-micro";
+//type Comment {
+//    postuid: String!
+//    cuid: String!
+//    user_name: String!
+//    content: String!
+//    replies: [String]!
+//  }
 
 const typeDefs = gql`
   type User {
@@ -11,9 +18,15 @@ const typeDefs = gql`
   }
   type Post {
     title: String!
+    image: String
     puid: String!
     user_name: String!
     likes: [String]!
+    comments: [String]
+  }
+  type Comment {
+    content: String!
+    user: String!
   }
   type Message {
     muid: String!
@@ -21,20 +34,13 @@ const typeDefs = gql`
     sender: String!
     receiver: String!
   }
-  type Comment {
-    postuid: String!
-    cuid: String!
-    user_name: String!
-    content: String!
-    replies: [String]!
-  }
   type Query {
     lg: User!
     user(fname: String!): User!
     users: [User!]!
     posts(fname: String!): [Post!]!
     allposts: [Post!]!
-    getcomment(postuid: String!): [Comment!]!
+    getcomment(postuid: String!): String
     getFl: [String]!
     getFo: [String]!
     getmessages(receiver: String!): [Message]!

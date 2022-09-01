@@ -68,8 +68,16 @@ const Signup = () => {
   return (
     <div className="flex justify-center flex-col items-center bg-zinc-50 h-screen">
       <div className={`border-2 bg-white ${styles.signupCard}`}>
-        <div className="text-center mt-10">
-          <Image src={instlogo} width="190" height="70" className="m-3" />
+        <div className="text-center my-5">
+          <p
+            className="font-semibold antialiased tracking-wider text-2xl"
+            onClick={(e) => router.push("/")}
+          >
+            ƒɑղԵɑցɾɑʍ
+          </p>
+          {
+            //<Image src={instlogo} width="190" height="70" className="m-3" />
+          }
         </div>
         <p className="text-center text-md tracking-wide px-10 text-zinc-500 font-bold">
           Sign up to see photos and videos from your friends.

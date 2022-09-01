@@ -1,10 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/router";
-import { gql, useMutation, useSubscription } from "@apollo/client";
-import useSWR, { SWRConfig, useSWRConfig } from "swr";
-import axios from "axios";
-
-import request from "graphql-request";
+import { gql, useMutation } from "@apollo/client";
+import Header from "../components/header";
 
 const Add_FPost = gql`
   mutation addFPost($title: String!) {
@@ -12,90 +9,118 @@ const Add_FPost = gql`
       title
       user_name
       puid
-      likes
     }
   }
 `;
-const Get_FPost = `
-  {
-   allposts {
-      title
-      likes
-      user_name
-    }
-  }`;
 
 const Post = () => {
-  const fetcher = (query) => request("/api/graphql", query);
-  const { mutate } = useSWRConfig();
   const router = useRouter();
-  const { data, error } = useSWR(Get_FPost, fetcher);
-  console.log("swr data");
-  let tl = [];
-  console.log(data);
-  if (data) {
-    tl = data.allposts;
-  }
-  console.log(error);
-
   const init = { title: "" };
   const [pInfo, setpInfo] = useState(init);
-
-  const chgUserData = (e) => {
+  const ref = useRef(null);
+  const [fileInput, setfileInput] = useState("");
+  const [source, setsource] = useState("");
+  const handleRef = () => {
+    ref.current.click();
+  };
+  const handleFile = (e) => {
+    const file = e.target.files[0];
+    previewFile(file);
+  };
+  const previewFile = (f) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(f);
+    reader.onloadend = () => {
+      setsource(reader.result);
+    };
+  };
+  const handlePData = (e) => {
     e.preventDefault();
     setpInfo({ ...pInfo, [e.target.name]: e.target.value });
   };
   const [addpost, { data: md, loading: ml, error: me }] =
     useMutation(Add_FPost);
-  const handleaccount = (e) => {
+  const handleAddPost = (e) => {
     e.preventDefault();
-
-    addpost({ variables: { title: pInfo.title } });
+    addpost({
+      variables: { title: pInfo.title },
+    });
   };
-  console.log(pInfo);
 
-  if (ml) {
-    return <p>loading</p>;
-  }
-  if (md) {
-    console.log(md);
-
-    if (data) {
-      tl.push(md.addfpost);
-    }
-  }
-  if (me) {
-    console.log(me);
-  }
   return (
-    <div className="flex justify-center flex-col items-center">
-      <form
-        action="/api/adduser"
-        encType="multipart/form-data"
-        className="border-4 mt-20 space-y-4 p-4"
-        method="POST"
-        onSubmit={handleaccount}
-      >
-        <div className="flex flex-col">
-          <label className="text-xs ">title</label>
-          <input
+    <div className="h-screen bg-slate-50">
+      <Header />
+      <div className="container flex justify-around h-4/5 mx-auto items-center">
+        <div
+          className="w-1/3 border-2 flex items-center rounded-xl justify-center border-dashed border-cyan-300 bg-white h-4/5"
+          onClick={handleRef}
+        >
+          {source ? (
+            <img
+              src={source}
+              className="w-full h-full object-center object-contain"
+            />
+          ) : (
+            <div className="" onClick={handleRef}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+            </div>
+          )}
+        </div>
+        <form
+          action="/api/adduser"
+          encType="multipart/form-data"
+          className="flex flex-col  w-1/4  space-y-6"
+          method="POST"
+          onSubmit={handleAddPost}
+        >
+          <textarea
             type="text"
-            placeholder="title"
-            className="border-2 p-0.5 text-sm"
+            rows={6}
+            cols={20}
+            placeholder="Caption"
+            className="rounded-xl p-2 text-sm"
+            style={{ resize: "none" }}
             value={pInfo.title}
-            onChange={(e) => chgUserData(e)}
+            onChange={(e) => handlePData(e)}
             name="title"
           />
-        </div>
-
-        <button className="border-2 " type="submit">
-          boooom !!!
-        </button>
-      </form>
-      {data &&
-        tl.map((p, key) => {
-          return <p key={key}>{p.title}</p>;
-        })}
+          <input
+            type="file"
+            placeholder="title"
+            className="hidden"
+            value={fileInput}
+            ref={ref}
+            onChange={handleFile}
+            name="image"
+            accept="image/*"
+          />
+          <input
+            type="text"
+            placeholder="Tags"
+            className="rounded-full p-2 text-sm"
+            name="tags"
+          />
+          <button
+            className="flex-item text-lg self-end w-20 font-bold text-cyan-400"
+            type="submit"
+          >
+            Post
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
