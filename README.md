@@ -1,34 +1,45 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# fantasyland
 
-## Getting Started
+fantasyland is an social app where you can share your fantasy and read about others as well
 
-First, run the development server:
+## Introduction
 
-```bash
-npm run dev
-# or
-yarn dev
-```
+(**_non-responsive for some screens but works fine_**)App for to become more social in your kind.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Usage
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+- Download the project.
+- open a terminals.
+- npm install all dependancies of project.
+  ```js
+   npm i package.json
+  ```
+- To start the App.
+  ```js
+   npm run dev
+  ```
+- For setup follow the above step.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+- Sign up for new account and you are good to go :)
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+![login](https://user-images.githubusercontent.com/52545996/188248948-e482efc5-e8b7-45d4-b0cf-5d11b6106869.png)
 
-## Learn More
+- home
 
-To learn more about Next.js, take a look at the following resources:
+![home](https://user-images.githubusercontent.com/52545996/188248964-cadaaf88-0a9f-4130-a54c-4422d54350ac.png)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Like and Comment on your favourite fantasy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+![postinfo](https://user-images.githubusercontent.com/52545996/188249015-2d5a2d8b-3931-4ba1-a65e-4955759db953.png)
 
-## Deploy on Vercel
+- See what your friends share and what they like to follow in their following list !!
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+![usersPage](https://user-images.githubusercontent.com/52545996/188249131-15aa0275-ac52-4a82-a6c3-da34495470cf.png)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Add post (you can see your pic review too)
+
+![addPost](https://user-images.githubusercontent.com/52545996/188249200-846e6868-b877-4d00-972e-6e0a65866d23.png)
+
+- Edit your personal information and change password any time you like
+
+![edit](https://user-images.githubusercontent.com/52545996/188249147-8adebbd4-0ae5-45e7-b81b-81e9a6ac0224.png)

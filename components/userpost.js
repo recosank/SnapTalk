@@ -324,7 +324,7 @@ const Userpost = ({ data, c, user }) => {
             </div>
             <p className="px-4 mt-2 pt-1 text-sm">
               Liked by
-              <span className="font-bold">
+              <span className="font-bold ml-1">
                 {postLikeData && postLikeData.getlikes.length}
               </span>
             </p>
