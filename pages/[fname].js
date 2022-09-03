@@ -1,18 +1,14 @@
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { useState, useEffect } from "react";
-import Header from "../components/header";
 import { useRouter } from "next/router";
-import { gql, useQuery, useMutation } from "@apollo/client";
-import profile from "../images/profile.jpg";
-import def from "../images/def.jpg";
+import { gql, useMutation, useApolloClient } from "@apollo/client";
 import { initializeApollo } from "../lib/apollo";
-import useSWR from "swr";
-import request from "graphql-request";
 import Userpost from "../components/userpost";
 import FollowPage from "../components/followpage";
-import { useApolloClient } from "@apollo/client";
+import Header from "../components/header";
 import FollowingPage from "../components/followingpage";
-import { useRef } from "react";
+import profile from "../images/profile.jpg";
+import def from "../images/def.jpg";
 
 const Get_FPost = gql`
   query getfposts($fname: String!) {
@@ -31,15 +27,6 @@ const Get_FPost = gql`
     }
   }
 `;
-const Get_FPosts = gql`
-  query getfpost {
-    allposts {
-      title
-      likes
-      user_name
-    }
-  }
-`;
 const Get_FUser = `
   {
   getFo
@@ -55,9 +42,11 @@ const Rem_Fl = gql`
     remfl(fname: $fname)
   }
 `;
-export default function account(fs) {
+
+export default (props) => {
+  const router = useRouter();
   const client = useApolloClient();
-  //console.log(fs.initialApolloState.ROOT_QUERY);
+  let profileRef = useRef(null);
   const [isLogin, setisLogin] = useState(false);
   const [isUser, setisUser] = useState(false);
   const [isAllow, setisAllow] = useState(false);
@@ -65,59 +54,19 @@ export default function account(fs) {
   const [isfoOpen, setisfoOpen] = useState(false);
   const [isflOpen, setisflOpen] = useState(false);
   const [loginname, setloginname] = useState("");
-  const fetcher = (query) => request("/api/graphql", query);
-  const router = useRouter();
-  const { data, error } = useSWR(Get_FUser, fetcher);
-  let prf = useRef(null);
-  const handleAvtarChg = (e) => {
-    e.preventDefault();
-    const newProfile = e.target.files[0];
-    console.log(newProfile);
-  };
-  const handleAvtar = () => {
-    prf.current.click();
-  };
-  const {
-    loading: qloading,
-    error: qerror,
-    data: qdata,
-  } = useQuery(Get_FPost, {
+
+  let cacheData = client.readQuery({
+    query: Get_FPost,
     variables: { fname: router.asPath.slice(1) },
   });
-  if (qloading) {
-    return (
-      <div class="flex justify-center h-screen items-center">
-        <div
-          class="spinner-border animate-spin border-black inline-block w-8 h-8 border-4 rounded-full"
-          role="status"
-        >
-          <span class="visually-hidden"></span>
-        </div>
-      </div>
-    );
-  }
-  if (qerror) {
-    console.error(qerror);
-    return <div>Error!</div>;
-  }
-  if (qdata) {
-    //console.log(qdata);
-  }
   const [adfl, { loading: ml, error: me }] = useMutation(Add_Fl, {
     update(cache, { data }) {
-      const datat = cache.readQuery({
-        query: Get_FPost,
-        variables: {
-          fname: router.asPath.slice(1),
-        },
-      });
-      console.log("cache data");
       cache.writeQuery({
         query: Get_FPost,
         data: {
-          posts: [...datat.posts],
+          posts: [...cacheData.posts],
           user: {
-            ...datat.user,
+            ...cacheData.user,
             follow: [...JSON.parse(data.addfl)],
           },
         },
@@ -127,28 +76,14 @@ export default function account(fs) {
       });
     },
   });
-  const aaddfl = (e, user) => {
-    e.preventDefault();
-    adfl({
-      variables: {
-        fname: user,
-      },
-    });
-  };
   const [rmfl, { data: mrd, loading: mrl, error: mre }] = useMutation(Rem_Fl, {
     update(cache, { data }) {
-      const datat = cache.readQuery({
-        query: Get_FPost,
-        variables: {
-          fname: router.asPath.slice(1),
-        },
-      });
       cache.writeQuery({
         query: Get_FPost,
         data: {
-          posts: [...datat.posts],
+          posts: [...cacheData.posts],
           user: {
-            ...datat.user,
+            ...cacheData.user,
             follow: [...JSON.parse(data.remfl)],
           },
         },
@@ -158,6 +93,16 @@ export default function account(fs) {
       });
     },
   });
+
+  const aaddfl = (e, user) => {
+    e.preventDefault();
+    adfl({
+      variables: {
+        fname: user,
+      },
+    });
+  };
+
   const remfl = (e, user) => {
     e.preventDefault();
     rmfl({
@@ -165,6 +110,14 @@ export default function account(fs) {
         fname: user,
       },
     });
+  };
+
+  const handleAvtarChg = (e) => {
+    e.preventDefault();
+    const newProfile = e.target.files[0];
+  };
+  const handleAvtar = () => {
+    profileRef.current.click();
   };
   const closePost = () => {
     setisPostOpen(false);
@@ -175,23 +128,24 @@ export default function account(fs) {
   const closeFl = () => {
     setisflOpen(false);
   };
-  const debby = client.readQuery({
-    query: Get_FPost,
-    variables: {
-      fname: router.asPath.slice(1),
-    },
-  });
-  if (debby) {
-    console.log("debby");
-    console.log(debby);
-  }
+
   useEffect(() => {
     let loginUser = JSON.parse(localStorage.getItem("fantaUser")).f;
-    loginUser && setisLogin(true) && setloginname(loginUser);
-    isLogin && loginUser == router.asPath.slice(1) && setisUser(true);
-    debby.user.follow.includes(loginUser) && setisAllow(true);
-  }, [isLogin]);
-  console.log(isAllow);
+    if (loginUser) {
+      setisLogin(true);
+      setloginname(loginUser);
+    }
+    if (isLogin && loginUser == router.asPath.slice(1)) {
+      setisUser(true);
+    } else if (
+      isLogin &&
+      !isUser &&
+      cacheData.user.follow.includes(loginUser)
+    ) {
+      setisAllow(true);
+    }
+  }, [isLogin, isUser, cacheData]);
+
   return (
     <div className="border min-h-screen bg-slate-50">
       <Header />
@@ -209,14 +163,14 @@ export default function account(fs) {
               type="file"
               className="hidden"
               onChange={handleAvtarChg}
-              ref={prf}
+              ref={profileRef}
               name="profile"
             />
           </div>
           <div className="w-2/5">
             <div className="flex">
               <p className="text-3xl font-normal text-gray-900">
-                {qdata.user.fname}
+                {cacheData.user.fname}
               </p>
               {isUser ? (
                 <div className="flex gap-4">
@@ -256,19 +210,18 @@ export default function account(fs) {
                     className="ml-8 px-3 bg-white text-black border font-bold rounded-md"
                     onClick={(e) => {
                       e.preventDefault();
-
-                      remfl(e, `${qdata.user.fname}`);
+                      remfl(e, `${cacheData.user.fname}`);
                       setisAllow(false);
                     }}
                   >
                     unfollow
                   </button>
                 </>
-              ) : !qdata.user.isopen ? (
+              ) : !cacheData.user.isopen ? (
                 <button
                   className="ml-8 px-3 bg-cyan-600 text-white rounded-md"
                   onClick={(e) => {
-                    aaddfl(e, `${qdata.user.fname}`);
+                    aaddfl(e, `${cacheData.user.fname}`);
                     setisAllow(true);
                   }}
                 >
@@ -285,7 +238,7 @@ export default function account(fs) {
                   <button
                     className="ml-8 px-3 bg-cyan-600 text-white rounded-md"
                     onClick={(e) => {
-                      aaddfl(e, `${qdata.user.fname}`);
+                      aaddfl(e, `${cacheData.user.fname}`);
                     }}
                   >
                     Follow
@@ -296,36 +249,36 @@ export default function account(fs) {
             <div className="flex py-4 text-center">
               <p className="mr-9 text-sm">
                 <span className="font-semibold text-md mr-1">
-                  {qdata.posts.length}
+                  {cacheData.posts.length}
                 </span>
                 posts
               </p>
               <p className="mr-9 text-sm " onClick={(e) => setisfoOpen(true)}>
                 <span className="font-semibold text-md mr-1">
-                  {debby.user.follow.length}
+                  {cacheData.user.follow.length}
                 </span>
                 followers
               </p>
               <p className="mr-9 text-sm " onClick={(e) => setisflOpen(true)}>
                 <span className="font-semibold text-md mr-1">
-                  {qdata.user.following.length}
+                  {cacheData.user.following.length}
                 </span>
                 following
               </p>
             </div>
-            <p className="text-base font-semibold">{qdata.user.pname}</p>
+            <p className="text-base font-semibold">{cacheData.user.pname}</p>
             <p className="text-base">
               The Official the big bang theory insta account youngsheldon.com
             </p>
           </div>
           {(isAllow || isPostOpen) && isfoOpen && (
-            <FollowPage data={debby.user.follow} close={closeFo} />
+            <FollowPage data={cacheData.user.follow} close={closeFo} />
           )}
           {(isAllow || isPostOpen) && isflOpen && (
-            <FollowingPage data={debby.user.following} close={closeFl} />
+            <FollowingPage data={cacheData.user.following} close={closeFl} />
           )}
         </div>
-        {(isAllow || qdata.user.isopen || isUser) && (
+        {(isAllow || cacheData.user.isopen || isUser) && (
           <div className="border-t-2 mt-14">
             <div className="flex justify-center">
               <p className="border-t-2 text-xs mr-12 border-black py-2.5">
@@ -338,34 +291,35 @@ export default function account(fs) {
                 TAGGED
               </p>
             </div>
-            <div className="grid items grid-cols-3 gap-7">
-              {qdata.posts.map((i, id) => {
-                return (
-                  <div className="border" key={id}>
-                    {" "}
-                    <Image
-                      src={def}
-                      className=""
-                      width="300"
-                      height="300"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setisPostOpen((p) => !p);
-                      }}
-                    />{" "}
-                    {isPostOpen && (
-                      <Userpost data={i} l={loginname} c={closePost} />
-                    )}
-                  </div>
-                );
-              })}
+            <div className="grid items mt-5 grid-cols-3 gap-7">
+              {cacheData &&
+                cacheData.posts.map((val, key) => {
+                  return (
+                    <div className="border" key={key}>
+                      <Image
+                        src={def}
+                        className=""
+                        width="300"
+                        height="300"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setisPostOpen((p) => !p);
+                        }}
+                      />
+                      {isPostOpen && (
+                        <Userpost data={val} user={loginname} c={closePost} />
+                      )}
+                    </div>
+                  );
+                })}
             </div>
           </div>
         )}
       </div>
     </div>
   );
-}
+};
+
 export const getServerSideProps = async (ctx) => {
   const { req } = ctx;
   if (req?.headers.cookie) {
@@ -374,23 +328,19 @@ export const getServerSideProps = async (ctx) => {
       (initialState = null),
       (ctx = ctx)
     );
-    console.log("in ssr");
     try {
       await apolloClient.query({
         query: Get_FPost,
         variables: { fname: ctx.params.fname },
       });
-      console.log(apolloClient);
       return {
         props: {
           initialApolloState: await apolloClient.cache.extract(),
         },
       };
     } catch (error) {
-      console.log("pppp");
-
+      console.log("error [fname] ssr");
       console.log(error);
-
       const gqlError = error.networkErrors;
       if (gqlError) {
         console.log(gqlError);
@@ -399,9 +349,9 @@ export const getServerSideProps = async (ctx) => {
   }
 
   return {
-    //redirect: {
-    //  destination: "/signup",
-    //  permanent: false,
-    //},
+    redirect: {
+      destination: "/signup",
+      permanent: false,
+    },
   };
 };

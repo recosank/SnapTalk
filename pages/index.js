@@ -4,10 +4,8 @@ import Header from "../components/header";
 import authg from "../lib/auth";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
 import profile from "../images/profile.jpg";
-import def from "../images/def.jpg";
 import { initializeApollo } from "../lib/apollo";
 import HPosts from "../components/posts";
 import { useApolloClient } from "@apollo/client";
@@ -36,32 +34,11 @@ const Get_pUser = gql`
     }
   }
 `;
-export default function Home(fs) {
+export default function Home(props) {
   const router = useRouter();
   const [login_user, setlogin_user] = useState({});
-  //const { data, error, loading } = useQuery(GET_PRODUCT_BY_ID, {     send query with var
-  //  variables: { code: VARIABLE },
-  //});
-  const { loading, error, data } = useQuery(Get_FUser);
-  if (loading) {
-    return (
-      <div class="flex justify-center h-screen items-center">
-        <div
-          class="spinner-border animate-spin border-black inline-block w-8 h-8 border-4 rounded-full"
-          role="status"
-        >
-          <span class="visually-hidden"></span>
-        </div>
-      </div>
-    );
-  }
-  if (error) {
-    console.error(error);
-    return <div>Error!</div>;
-  }
-  if (data) {
-    console.log(data);
-  }
+  let client = useApolloClient();
+  let homeData = client.cache.data.data.ROOT_QUERY;
   useEffect(() => {
     const local =
       typeof window !== "undefined"
@@ -69,58 +46,17 @@ export default function Home(fs) {
         : "";
     setlogin_user(local);
   }, []);
-  const client = useApolloClient();
-  const addLike = (data) => {
-    const datat = client.readQuery({
-      query: Get_FUser,
-    });
-    console.log("cache data");
-    console.log(datat);
-
-    const all = client.writeQuery({
-      query: Get_FUser,
-      data: {
-        allposts: datat.allposts.filter((i) => {
-          if (i.puid === data.updateAddLike.puid) {
-            console.log("here");
-            console.log(i);
-
-            i.likes = [...data.updateAddLike.likes];
-          }
-          return i;
-        }),
-        getFl: [...datat.getFl],
-        users: [...datat.users],
-      },
-    });
-    const datap = client.readQuery({
-      query: Get_pUser,
-    });
-    console.log(datap);
-  };
-  console.log(client);
-  const debby = client.readQuery({
-    query: Get_FUser,
-    //variables: {
-    //  fname: router.asPath.slice(1),
-    //},
-  });
-  if (debby) {
-    console.log("debby");
-    //console.log(debby);
-    //console.log(fs);
-  }
 
   return (
     <div className="w-full bg-slate-50">
       <Header />
       <div className={`flex mt-7 ${styles.homeCard} mx-auto`}>
         <div className="mr-10 w-7/12">
-          {data.getFl.length != 0 && (
+          {homeData.getFl.length != 0 && (
             <div
               className={`flex p-2 w-full bg-white border rounded-lg ${styles.hdnscrollbar} overflow-x-auto overscroll-x-none`}
             >
-              {data.getFl.map((user, key) => {
+              {homeData.getFl.map((user, key) => {
                 return (
                   <div key={key} className="text-center mr-2 w-1/5">
                     <Image
@@ -139,12 +75,8 @@ export default function Home(fs) {
             </div>
           )}
           <div className="mt-5">
-            {debby.allposts.map((post, key) => {
-              return (
-                <div key={key}>
-                  <HPosts data={post} l={addLike} />
-                </div>
-              );
+            {homeData.allposts.map((post, key) => {
+              return <HPosts data={post} user={login_user.f} key={key} />;
             })}
           </div>
         </div>
@@ -170,7 +102,7 @@ export default function Home(fs) {
           <div className="mt-3 text-center">
             <div className="flex justify-between items-center">
               <p className="text-gray-500 text-sm">Suggestions For You</p>
-              <p className="text-xs">See All</p>{" "}
+              <p className="text-xs">See All</p>
             </div>
           </div>
         </div>
@@ -192,7 +124,6 @@ export const getServerSideProps = async (ctx) => {
         query: Get_FUser,
         //variables: { code: req.headers.cookie },
       });
-      console.log(apolloClient);
       return {
         props: { initialApolloState: await apolloClient.cache.extract() },
       };

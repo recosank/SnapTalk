@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useApolloClient, useMutation, useQuery } from "@apollo/client";
+import {
+  ApolloCache,
+  useApolloClient,
+  useMutation,
+  useQuery,
+} from "@apollo/client";
 import { gql } from "@apollo/client";
 import Link from "next/link";
 import Image from "next/image";
@@ -25,16 +30,6 @@ const update_cmt = gql`
     }
   }
 `;
-const Get_FUser = gql`
-  query getfposts {
-    allposts {
-      title
-      puid
-      likes
-      user_name
-    }
-  }
-`;
 const update_remlike = gql`
   mutation update_post($puid: String) {
     updateRemLike(puid: $puid) {
@@ -43,27 +38,43 @@ const update_remlike = gql`
     }
   }
 `;
-const HPosts = ({ data, l }) => {
+const HPosts = ({ data, user }) => {
   const [logedin, setlogedin] = useState("");
   const likedata = data.likes.includes(`${logedin}`);
   const [isLiked, setisLiked] = useState(likedata);
   const [cmmnt, setcmmnt] = useState("");
   const [isPostOpen, setisPostOpen] = useState(false);
   const client = useApolloClient();
+  let postCache = new ApolloCache();
+  postCache.data = data;
   useEffect(() => {
-    const local =
-      typeof window !== "undefined"
-        ? JSON.parse(localStorage.getItem("fantaUser"))
-        : "";
-    setlogedin(local.f);
+    setlogedin(user);
   }, [logedin, isLiked]);
   const [upCmt, { data: cd, loading: cl, error: ce }] = useMutation(update_cmt);
-  console.log(cd);
-  const [upPos, { loading: ml, error: me, data: md }] =
-    useMutation(update_addlike);
-  const { loading: gs, error: gds, data: gad } = useQuery(Get_FUser);
-  const [upPost, { data: mmd, loading: mml, error: mme }] =
-    useMutation(update_remlike);
+  const [upPos, { loading: ml, error: me, data: md }] = useMutation(
+    update_addlike,
+    {
+      update(cache, resData) {
+        const newTodoFromResponse = resData.data?.updateAddLike.likes;
+        const existingData = cache.data.data.ROOT_QUERY.allposts;
+        if (existingData && newTodoFromResponse) {
+          postCache.data.likes = newTodoFromResponse;
+        }
+      },
+    }
+  );
+  const [upPost, { data: mmd, loading: mml, error: mme }] = useMutation(
+    update_remlike,
+    {
+      update(cache, resData) {
+        const newTodoFromResponse = resData.data?.updateRemLike.likes;
+        const existingData = cache.data.data.ROOT_QUERY.allposts;
+        if (existingData && newTodoFromResponse) {
+          postCache.data.likes = newTodoFromResponse;
+        }
+      },
+    }
+  );
   const handleAddLk = async (e) => {
     e.preventDefault();
     setisLiked(true);
@@ -73,9 +84,6 @@ const HPosts = ({ data, l }) => {
       },
     });
   };
-  if (md) {
-    l(md);
-  }
   const handlecmmnt = (e) => {
     e.preventDefault();
     upCmt({
@@ -97,9 +105,8 @@ const HPosts = ({ data, l }) => {
   const closePost = () => {
     setisPostOpen(false);
   };
-
   if (isPostOpen) {
-    return <Userpost data={data} l={l} c={closePost} />;
+    return <Userpost data={data} user={user} c={closePost} />;
   } else {
     return (
       <div className="mb-7 bg-white border rounded-lg">
@@ -125,10 +132,10 @@ const HPosts = ({ data, l }) => {
             <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
           </svg>
         </div>
-        <Image src={def} className="" width="560" height="620" />{" "}
+        <Image src={def} className="" width="560" height="620" />
         <div className="flex items-center justify-between px-3">
           <div className="flex items-center gap-3">
-            {data.likes.includes(`${logedin}`) ? (
+            {likedata ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-8 w-8"

@@ -53,6 +53,12 @@ const resolvers = {
       );
       return JSON.stringify(data.rows);
     },
+    getlikes: async (_, { postuid }, { userId }) => {
+      const data = await pool.query(
+        `SELECT likes FROM fanpost WHERE puid = '${postuid}';`
+      );
+      return data.rows[0].likes;
+    },
     getmessages: async (_, { receiver }, { userId }) => {
       const data = await pool.query(
         `SELECT * FROM message WHERE sender = '${userId}' AND receiver = '${receiver}';`
@@ -117,7 +123,6 @@ const resolvers = {
         password,
         existedUser.rows[0].password
       );
-      console.log(hasedPasswd);
       if (!hasedPasswd) {
         return "wrong auth";
       }
@@ -211,7 +216,7 @@ const resolvers = {
         `UPDATE fanpost SET comments = comments || '{"user_Id":"${user_Id}","content":"${content}"}'::jsonb WHERE puid = '${postuid}'  returning *;`
       );
       const data = {
-        user: user_Id,
+        user_Id: user_Id,
         content,
       };
       return data;

@@ -26,7 +26,7 @@ const typeDefs = gql`
   }
   type Comment {
     content: String!
-    user: String!
+    user_Id: String!
   }
   type Message {
     muid: String!
@@ -41,6 +41,7 @@ const typeDefs = gql`
     posts(fname: String!): [Post!]!
     allposts: [Post!]!
     getcomment(postuid: String!): String
+    getlikes(postuid: String!): [String]
     getFl: [String]!
     getFo: [String]!
     getmessages(receiver: String!): [Message]!

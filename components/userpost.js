@@ -1,26 +1,52 @@
 import React, { useState, useEffect } from "react";
-import { gql } from "@apollo/client";
-import { useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation, useApolloClient, useQuery } from "@apollo/client";
 import Image from "next/image";
 import def from "../images/def.jpg";
 import profile from "../images/profile.jpg";
 import Link from "next/link";
 
-const update_cmt = gql`
-  mutation update_cmt($content: String!, $postuid: String!) {
-    addcomment(content: $content, postuid: $postuid) {
-      user
-      content
-    }
-  }
-`;
 const Get_cmt = gql`
   query getcmt($postuid: String!) {
     getcomment(postuid: $postuid)
   }
 `;
-const Userpost = ({ data, l, c }) => {
+const Get_like = gql`
+  query getlike($postuid: String!) {
+    getlikes(postuid: $postuid)
+  }
+`;
+const update_addlike = gql`
+  mutation update_post($puid: String) {
+    updateAddLike(puid: $puid) {
+      puid
+      likes
+      user_name
+      title
+    }
+  }
+`;
+const update_remlike = gql`
+  mutation update_post($puid: String) {
+    updateRemLike(puid: $puid) {
+      puid
+      likes
+    }
+  }
+`;
+const update_cmt = gql`
+  mutation update_cmt($content: String!, $postuid: String!) {
+    addcomment(content: $content, postuid: $postuid) {
+      user_Id
+      content
+    }
+  }
+`;
+
+const Userpost = ({ data, c, user }) => {
+  const client = useApolloClient();
   const [cmmnt, setcmmnt] = useState("");
+  const [logedin, setlogedin] = useState("");
+
   const {
     loading: qloading,
     error: qerror,
@@ -28,8 +54,50 @@ const Userpost = ({ data, l, c }) => {
   } = useQuery(Get_cmt, {
     variables: { postuid: data.puid },
   });
-  let allCommnt = qdata && JSON.parse(qdata.getcomment);
-  const [upCmt, { data: cd, loading: cl, error: ce }] = useMutation(update_cmt);
+  const postCommntData = client.readQuery({
+    query: Get_cmt,
+    variables: { postuid: data.puid },
+  });
+  let parsePostCommntData =
+    postCommntData && JSON.parse(postCommntData.getcomment);
+
+  const {
+    loading: lloading,
+    error: lerror,
+    data: ldata,
+  } = useQuery(Get_like, {
+    variables: { postuid: data.puid },
+  });
+  const postLikeData = client.readQuery({
+    query: Get_like,
+    variables: { postuid: data.puid },
+  });
+  const likedata = postLikeData
+    ? postLikeData.getlikes.includes(`${logedin}`)
+    : false;
+  const [isLiked, setisLiked] = useState(likedata);
+
+  const [upCmt, { data: cd, loading: cl, error: ce }] = useMutation(
+    update_cmt,
+    {
+      update(cache, resData) {
+        const newCmtFromResponse = resData.data?.addcomment;
+        const existingData = parsePostCommntData;
+        if (existingData && newCmtFromResponse) {
+          let completeData = { commt: newCmtFromResponse };
+          parsePostCommntData.push(completeData);
+          const strcmt = JSON.stringify(parsePostCommntData);
+          client.writeQuery({
+            query: Get_cmt,
+            data: {
+              getcomment: strcmt,
+            },
+            variables: { postuid: data.puid },
+          });
+        }
+      },
+    }
+  );
   const handlecmmnt = (e) => {
     e.preventDefault();
     upCmt({
@@ -40,6 +108,65 @@ const Userpost = ({ data, l, c }) => {
     });
   };
 
+  const [addLike, { loading: ml, error: me, data: md }] = useMutation(
+    update_addlike,
+    {
+      update(cache, resData) {
+        const newLikeFromResponse = resData.data?.updateAddLike.likes;
+        const existingData = postLikeData.getlikes;
+        if (existingData && newLikeFromResponse) {
+          client.writeQuery({
+            query: Get_like,
+            data: {
+              getlikes: newLikeFromResponse,
+            },
+            variables: { postuid: data.puid },
+          });
+        }
+      },
+    }
+  );
+  const handleAddLk = (e) => {
+    e.preventDefault();
+    setisLiked(true);
+    addLike({
+      variables: {
+        puid: data.puid,
+      },
+    });
+  };
+
+  const [remLike, { data: mmd, loading: mml, error: mme }] = useMutation(
+    update_remlike,
+    {
+      update(cache, resData) {
+        const newLikeFromResponse = resData.data?.updateRemLike.likes;
+        const existingData = postLikeData.getlikes;
+        if (existingData && newLikeFromResponse) {
+          client.writeQuery({
+            query: Get_like,
+            data: {
+              getlikes: newLikeFromResponse,
+            },
+            variables: { postuid: data.puid },
+          });
+        }
+      },
+    }
+  );
+  const handleRemLk = (e) => {
+    e.preventDefault();
+    setisLiked(false);
+    remLike({
+      variables: {
+        puid: data.puid,
+      },
+    });
+  };
+
+  useEffect(() => {
+    setlogedin(user);
+  }, [logedin, isLiked]);
   return (
     <div className="z-30 flex justify-center w-full overflow-hidden overscroll-none py-8 h-screen bg-black/50 absolute top-0 left-0 inset-0 ">
       <svg
@@ -97,8 +224,8 @@ const Userpost = ({ data, l, c }) => {
               className="overflow-scroll overscroll-contain"
               style={{ height: "37rem" }}
             >
-              {allCommnt &&
-                allCommnt.map((val, ind) => {
+              {parsePostCommntData &&
+                parsePostCommntData.map((val, ind) => {
                   return (
                     <div
                       key={ind}
@@ -120,7 +247,7 @@ const Userpost = ({ data, l, c }) => {
           <div className="">
             <div className="flex items-center justify-between px-3">
               <div className="flex items-center gap-3">
-                {data.likes.includes(`${l}`) ? (
+                {likedata ? (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-8 w-8"
@@ -196,7 +323,10 @@ const Userpost = ({ data, l, c }) => {
               </svg>
             </div>
             <p className="px-4 mt-2 pt-1 text-sm">
-              Liked by <span className="font-bold">{data.likes.length}</span>
+              Liked by
+              <span className="font-bold">
+                {postLikeData && postLikeData.getlikes.length}
+              </span>
             </p>
 
             <p className="text-xs text-gray-400 px-4 my-2">1 DAY AGO</p>
