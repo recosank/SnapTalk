@@ -1,6 +1,6 @@
 # fantasyland
 
-fantasyland is an social app where you can share your fantasy and read about others as well
+fantasyland is an social-media app where you can share your fantasy and read about others as well. It is made in nextjs with jwt for authorization using postgresql as a database and Graphql to interact with api.
 
 ## Introduction
 
