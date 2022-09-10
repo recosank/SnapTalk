@@ -22,7 +22,7 @@ SnapTalk is an social-media app where you can share your moments and read about 
 
 - Sign up for new account and you are good to go :)
 
-![login](https://user-images.githubusercontent.com/52545996/188248948-e482efc5-e8b7-45d4-b0cf-5d11b6106869.png)
+![login](https://user-images.githubusercontent.com/52545996/189491556-278caca1-d2a8-40cd-8b9d-6a585d0546b3.png)
 
 - home
 
