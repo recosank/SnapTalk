@@ -1,6 +1,6 @@
-# fantasyland
+# SnapTalk
 
-fantasyland is an social-media app where you can share your fantasy and read about others as well. It is made in nextjs with jwt for authorization using postgresql as a database and Graphql to interact with api.
+SnapTalk is an social-media app where you can share your moments and read about others as well. It is made in nextjs with jwt for authorization using postgresql as a database and Graphql to interact with api.
 
 ## Introduction
 
@@ -28,7 +28,7 @@ fantasyland is an social-media app where you can share your fantasy and read abo
 
 ![home](https://user-images.githubusercontent.com/52545996/188248964-cadaaf88-0a9f-4130-a54c-4422d54350ac.png)
 
-- Like and Comment on your favourite fantasy
+- Like and Comment on your favourite moments
 
 ![postinfo](https://user-images.githubusercontent.com/52545996/188249015-2d5a2d8b-3931-4ba1-a65e-4955759db953.png)
 

@@ -69,7 +69,7 @@ const Login = () => {
             className="font-semibold antialiased tracking-wider text-sky-400 text-2xl"
             onClick={(e) => router.push("/")}
           >
-            ƒɑղԵɑցɾɑʍ
+            𝓢𝓷𝓪𝓹𝓣𝓪𝓵𝓴
           </p>
         </div>
         <form

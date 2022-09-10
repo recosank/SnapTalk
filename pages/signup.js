@@ -83,7 +83,7 @@ const Signup = () => {
             className="font-semibold antialiased text-sky-400 tracking-wider text-2xl"
             onClick={(e) => router.push("/")}
           >
-            ƒɑղԵɑցɾɑʍ
+            𝓢𝓷𝓪𝓹𝓣𝓪𝓵𝓴
           </p>
         </div>
         <p className="text-center text-md tracking-wide px-10 text-zinc-500 font-bold">
